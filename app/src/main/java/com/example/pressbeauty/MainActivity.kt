@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,9 +43,9 @@ class MainActivity : ComponentActivity() {
     }*/
         setContent {
             val productoViewModel: ProductoViewModel = viewModel()
+                // Llamas directamente a la pantalla del catálogo
+                InicioCatalogoScreen(viewModel = productoViewModel)
 
-            // Llamas directamente a la pantalla del catálogo
-            InicioCatalogoScreen(viewModel = productoViewModel)
         }
     }
 }

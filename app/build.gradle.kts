@@ -4,11 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+
 android {
     namespace = "com.example.pressbeauty"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk  = 36
+
 
     defaultConfig {
         applicationId = "com.example.pressbeauty"
