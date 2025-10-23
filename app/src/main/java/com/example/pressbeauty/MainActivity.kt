@@ -15,6 +15,7 @@ import com.example.pressbeauty.view.InicioCatalogoScreen
 import com.example.pressbeauty.view.PerfilUsuarioScreen
 import com.example.pressbeauty.view.ProductoScreen
 import com.example.pressbeauty.view.UsuarioFormScreen
+import com.example.pressbeauty.viewmodel.CarritoViewModel
 import com.example.pressbeauty.viewmodel.ProductoViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 
@@ -26,11 +27,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val usuarioViewModel: UsuarioViewModel = viewModel()
             val productoViewModel: ProductoViewModel = viewModel()
+            val carritoViewModel : CarritoViewModel = viewModel()
 
             NavHost(
                 navController = navController,
                 startDestination = "UsuarioFormScreen"
             ) {
+
                 composable("UsuarioFormScreen") {
                     UsuarioFormScreen(
                         navController = navController,
@@ -53,11 +56,13 @@ class MainActivity : ComponentActivity() {
                     val id = backStackEntry.arguments?.getString("idProducto")
                     ProductoScreen(navController,
                                     id,
-                                    productoViewModel = productoViewModel)
+                                    productoViewModel = productoViewModel,
+                                    carritoViewModel = carritoViewModel)
                 }
 
                 composable("CarritoScreen"){
-                    CarritoScreen(productoViewModel = productoViewModel)
+                    CarritoScreen(navController = navController,
+                        carritoViewModel = carritoViewModel)
                 }
             }
         }

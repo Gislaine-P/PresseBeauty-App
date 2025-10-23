@@ -5,6 +5,6 @@ data class DetalleCarritoUI(
     val idProducto : String,
     val nombreProducto : String,
     val cantidadProducto : Int,
-    val precioUnitario : Float,
-    val subtotalCarrito : Float
+    val precioUnitario : Int,
+    val subtotalCarrito : Int
 )

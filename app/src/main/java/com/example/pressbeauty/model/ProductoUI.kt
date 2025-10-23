@@ -6,5 +6,5 @@ data class ProductoUI(
     val nombreProducto : String,
     val descripcionProducto : String,
     val stockProducto : Int,
-    val precioProducto : Float
+    val precioProducto : Int
 )

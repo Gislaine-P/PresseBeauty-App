@@ -1,36 +1,42 @@
 package com.example.pressbeauty.view
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.pressbeauty.viewmodel.CarritoViewModel
 import com.example.pressbeauty.viewmodel.ProductoViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun ProductoScreen(navController: NavController,
-                   idProducto : String?,
-                   productoViewModel: ProductoViewModel) {
-
+fun ProductoScreen(
+    navController: NavController,
+    idProducto: String?,
+    productoViewModel: ProductoViewModel,
+    carritoViewModel: CarritoViewModel
+) {
     val productos by productoViewModel.productos.collectAsState()
+    var cantidadProd by remember { mutableStateOf(1) }
 
     val producto = productos.find { it.idProducto == idProducto }
 
-    if (producto != null) {
-        Column(modifier = Modifier.padding(30.dp)) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+
+        if (producto != null) {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(30.dp)
+            ) {
                 AsyncImage(
                     model = producto.imagenUrl,
                     contentDescription = producto.nombreProducto,
@@ -40,8 +46,8 @@ fun ProductoScreen(navController: NavController,
                         .fillMaxWidth(),
                     contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = Modifier.height(16.dp))
 
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(text = "Nombre: ${producto.nombreProducto}")
                 Text(text = "Descripción: ${producto.descripcionProducto}")
@@ -50,19 +56,48 @@ fun ProductoScreen(navController: NavController,
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(onClick = { navController.popBackStack() }) {
-                    Text("Volver atras")
+                // 🔢 Control de cantidad
+                Row {
+                    Button(onClick = {
+                        if (cantidadProd > 1) cantidadProd--
+                    }) {
+                        Text("-")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(text = cantidadProd.toString())
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(onClick = {
+                        cantidadProd++
+                    }) {
+                        Text("+")
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // 🔘 Botón de volver
                 Button(onClick = { navController.popBackStack() }) {
-                Text("Agregar al carrito")
+                    Text("Volver atrás")
                 }
 
-        }
+                Spacer(modifier = Modifier.height(16.dp))
 
-    } else {
-        Text("Producto no encontrado")
+                // 🛒 Botón de agregar al carrito
+                Button(onClick = {
+                    carritoViewModel.agregarProducto(producto, cantidadProd)
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Producto agregado al carrito")
+                    }
+                }) {
+                    Text("Agregar al carrito")
+                }
+            }
+        } else {
+            Text("Producto no encontrado")
+        }
     }
 }
