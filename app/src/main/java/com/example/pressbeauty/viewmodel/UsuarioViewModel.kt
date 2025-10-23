@@ -13,6 +13,10 @@ class UsuarioViewModel : ViewModel() {
     val estado : StateFlow<UsuarioUI> = _estado
 
 
+
+    fun setNombreUsuario(nombre: String) {
+        _estado.update { it.copy(nombre = nombre) }
+    }
     fun onNombreChange (valor : String){
         _estado.update { it.copy(nombre = valor, errores = it.errores.copy(nombre = null)) }
     }

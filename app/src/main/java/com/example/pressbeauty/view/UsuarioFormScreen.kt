@@ -212,7 +212,7 @@ fun UsuarioFormScreen(
             Button(
                 onClick = {
                     if (viewModel.validarFormulario()) {
-                        navController.navigate("PerfilUsuarioScreen")
+                        navController.navigate("InicioCatalogoScreen")
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

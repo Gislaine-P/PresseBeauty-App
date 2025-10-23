@@ -26,11 +26,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.navOptions
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 
 
 @Composable
-fun PerfilUsuarioScreen(viewModel: UsuarioViewModel){
+fun PerfilUsuarioScreen(viewModel: UsuarioViewModel,
+                        navController : NavController){
     val estado by viewModel.estado.collectAsState()
 
     Box(
@@ -78,14 +81,10 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel){
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { /* Podés volver al login si querés */ },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6A1B9A),
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Volver al login")
+                    onClick = {
+                        navController.popBackStack() })
+                {
+                    Text("Atras")
                 }
             }
         }

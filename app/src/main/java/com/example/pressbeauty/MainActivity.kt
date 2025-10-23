@@ -5,12 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.pressbeauty.view.CarritoScreen
 import com.example.pressbeauty.view.InicioCatalogoScreen
 import com.example.pressbeauty.view.PerfilUsuarioScreen
+import com.example.pressbeauty.view.ProductoScreen
 import com.example.pressbeauty.view.UsuarioFormScreen
 import com.example.pressbeauty.viewmodel.ProductoViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
@@ -19,9 +22,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        /*setContent {
+        setContent {
             val navController = rememberNavController()
             val usuarioViewModel: UsuarioViewModel = viewModel()
+            val productoViewModel: ProductoViewModel = viewModel()
 
             NavHost(
                 navController = navController,
@@ -35,17 +39,27 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("PerfilUsuarioScreen") {
                     PerfilUsuarioScreen(
-                        viewModel = usuarioViewModel
+                        viewModel = usuarioViewModel,
+                        navController = navController
                     )
                 }
-            }
-        }
-    }*/
-        setContent {
-            val productoViewModel: ProductoViewModel = viewModel()
-                // Llamas directamente a la pantalla del catálogo
-                InicioCatalogoScreen(viewModel = productoViewModel)
 
+                composable("InicioCatalogoScreen"){
+                    InicioCatalogoScreen(productoViewModel = productoViewModel,
+                                            usuarioViewModel = usuarioViewModel,
+                                            navController = navController)
+                }
+                composable("productoScreen/{idProducto}"){ backStackEntry ->
+                    val id = backStackEntry.arguments?.getString("idProducto")
+                    ProductoScreen(navController,
+                                    id,
+                                    productoViewModel = productoViewModel)
+                }
+
+                composable("CarritoScreen"){
+                    CarritoScreen(productoViewModel = productoViewModel)
+                }
+            }
         }
     }
 }
