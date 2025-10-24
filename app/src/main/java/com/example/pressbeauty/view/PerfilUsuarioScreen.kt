@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -72,118 +73,124 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
     }
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController) } // Aquí agregas la barra de navegación
-
-
+        bottomBar = { BottomNavBar(navController) }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF3E5F5))
-                .padding(paddingValues),
-            contentAlignment = Alignment.Center
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color(0xFFFFECDC), Color(0xFFFFFAF8))
+                    )
+                )
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Imagen circular
+            Box(
+                modifier = Modifier
+                    .size(140.dp)
+                    .clip(CircleShape)
+                    .shadow(8.dp, CircleShape)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        model = imagenUri
+                            ?: "https://i.pinimg.com/736x/0c/28/b9/0c28b934fc773ed7c9d35b829d5356b9.jpg"
+                    ),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "${estado.nombre} ${estado.apellido}",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1E1C1C)
+            )
+
+            Text(
+                text = estado.correo,
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Botones para imagen
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { pickImageLauncher.launch("image/*") },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
+                    shape = RoundedCornerShape(5.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Galería", color = Color.White)
+                }
+
+                Button(
+                    onClick = {
+                        when (ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        )) {
+                            PackageManager.PERMISSION_GRANTED -> {
+                                val uri = createImageUri(context)
+                                cameraUri = uri
+                                takePictureLauncher.launch(uri)
+                            }
+                            else -> requestCameraPermission.launch(Manifest.permission.CAMERA)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cámara", color = Color.White)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            // Datos del usuario
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
-                    .shadow(8.dp, RoundedCornerShape(20.dp))
+                elevation = CardDefaults.cardElevation(5.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Text("Dirección: ${estado.direccion}", fontSize = 18.sp)
                     Text(
-                        text = "Mi Perfil",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF6B6B6B)
-                        )
-                    )
-
-                    // Imagen circular del perfil
-                    Box(
-                        modifier = Modifier
-                            .size(140.dp)
-                            .clip(CircleShape)
-                    ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                model = imagenUri
-                                    ?: "https://i.pinimg.com/736x/d9/09/2e/d9092ec1feda6b20f747389b50fe9891.jpg"
-                            ),
-                            contentDescription = "Foto de perfil",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-
-                    // Botones de imagen
-                    Button(
-                        onClick = { pickImageLauncher.launch("image/*") },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF4F7A),
-                            contentColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Seleccionar desde galería")
-                    }
-
-                    Button(
-                        onClick = {
-                            when (ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.CAMERA
-                            )) {
-                                PackageManager.PERMISSION_GRANTED -> {
-                                    val uri = createImageUri(context)
-                                    cameraUri = uri
-                                    takePictureLauncher.launch(uri)
-                                }
-
-                                else -> requestCameraPermission.launch(Manifest.permission.CAMERA)
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF4F7A),
-                            contentColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Tomar foto con cámara")
-                    }
-
-                    Divider(color = Color(0xFF6B6B6B), thickness = 1.dp)
-
-                    // --- Datos del usuario ---
-                    Text("👤 Nombre: ${estado.nombre}", fontSize = 18.sp)
-                    Text("👥 Apellido: ${estado.apellido}", fontSize = 18.sp)
-                    Text("✉️ Correo: ${estado.correo}", fontSize = 18.sp)
-                    Text("🏠 Dirección: ${estado.direccion}", fontSize = 18.sp)
-                    Text(
-                        text = "📜 Términos aceptados: " +
-                                if (estado.aceptaTerminos) "✅ Aceptados" else "❌ Declinados",
+                        "Términos: " +
+                                if (estado.aceptaTerminos) "Aceptados" else "No aceptados",
                         fontSize = 18.sp,
                         color = if (estado.aceptaTerminos) Color(0xFF388E3C) else Color(0xFFD32F2F)
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = { navController.popBackStack() },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("CerrarSesion")
-                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            Button(
+                onClick = { navController.graph.startDestinationId  },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cerrar sesión", fontSize = 16.sp, color = Color.White)
             }
         }
     }

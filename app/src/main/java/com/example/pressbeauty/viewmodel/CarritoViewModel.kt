@@ -39,6 +39,7 @@ class CarritoViewModel : ViewModel() {
                 val nuevo = DetalleCarritoUI(
                     idDetalleCarrito = UUID.randomUUID().toString(),
                     idProducto = producto.idProducto,
+                    imagenUrl = producto.imagenUrl,
                     nombreProducto = producto.nombreProducto,
                     cantidadProducto = cantidadProd,
                     precioUnitario = producto.precioProducto,
