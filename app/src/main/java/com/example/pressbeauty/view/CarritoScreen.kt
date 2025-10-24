@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.pressbeauty.view.components.BottomNavBar
 import com.example.pressbeauty.viewmodel.CarritoViewModel
 
 @Composable
@@ -23,7 +24,10 @@ fun CarritoScreen(
 ) {
     val carrito by carritoViewModel.carrito.collectAsState()
 
+
     Scaffold(
+        bottomBar = { BottomNavBar(navController) } // Aquí agregas la barra de navegación
+
 
     ) { paddingValues ->
         Column(

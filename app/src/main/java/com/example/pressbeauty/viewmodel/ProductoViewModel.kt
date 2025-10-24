@@ -29,7 +29,7 @@ class ProductoViewModel : ViewModel() {
             10000),
         ProductoUI(
             "3",
-            "https://img.kwcdn.com/product/fancy/407abcef-b7ff-4ddb-b981-506c00ee6716.jpg?imageView2/2/w/800/q/70",
+            "https://img.kwcdn.com/product/fancy/407abcef-b7ff-4ddb-b981-506c00ee6716.jpg",
             "Metallic Sky",
             "Uñas blancas y celestes con lazos, corazones y brillos metalicos junto a pequeñas perlas que le dan un toque.",
             10,
@@ -37,7 +37,7 @@ class ProductoViewModel : ViewModel() {
         ProductoUI(
             "4",
             "https://i.pinimg.com/736x/21/9e/a9/219ea9589d25eed07e6fde99bf0ad195.jpg",
-            "CherryLove",
+            "Cherry Love",
             "Uñas de un color rojo intenso, diseño con lazos, corazones y cerezas, junto con perlas.",
             10,
             10000),

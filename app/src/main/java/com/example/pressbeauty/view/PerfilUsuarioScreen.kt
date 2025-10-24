@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.pressbeauty.view.components.BottomNavBar
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 import java.io.File
 import java.text.SimpleDateFormat
@@ -39,7 +40,6 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
     val imagenUri by viewModel.imagenUri.collectAsState()
     val context = LocalContext.current
 
-    // --- Lanzadores para galería y cámara ---
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri -> viewModel.setImage(uri) }
@@ -50,7 +50,6 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
         contract = ActivityResultContracts.TakePicture()
     ) { success -> if (success) viewModel.setImage(cameraUri) }
 
-    // --- Crear archivo temporal para cámara ---
     fun createImageUri(context: Context): Uri {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -62,7 +61,6 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
         )
     }
 
-    // --- Solicitar permiso de cámara ---
     val requestCameraPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -73,108 +71,118 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
         }
     }
 
-    // --- Diseño principal ---
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF3E5F5))
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    Scaffold(
+        bottomBar = { BottomNavBar(navController) } // Aquí agregas la barra de navegación
+
+
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-                .shadow(8.dp, RoundedCornerShape(20.dp))
+                .fillMaxSize()
+                .background(Color(0xFFF3E5F5))
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .padding(12.dp)
+                    .shadow(8.dp, RoundedCornerShape(20.dp))
             ) {
-                Text(
-                    text = "Mi Perfil",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF6A1B9A)
-                    )
-                )
-
-                // Imagen circular del perfil
-                Box(
+                Column(
                     modifier = Modifier
-                        .size(140.dp)
-                        .clip(CircleShape)
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            model = imagenUri ?: "https://i.pinimg.com/736x/d9/09/2e/d9092ec1feda6b20f747389b50fe9891.jpg"
-                        ),
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                    Text(
+                        text = "Mi Perfil",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF6B6B6B)
+                        )
                     )
-                }
 
-                // Botones de imagen
-                Button(
-                    onClick = { pickImageLauncher.launch("image/*") },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFCE93D8),
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Seleccionar desde galería")
-                }
+                    // Imagen circular del perfil
+                    Box(
+                        modifier = Modifier
+                            .size(140.dp)
+                            .clip(CircleShape)
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                model = imagenUri
+                                    ?: "https://i.pinimg.com/736x/d9/09/2e/d9092ec1feda6b20f747389b50fe9891.jpg"
+                            ),
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
 
-                Button(
-                    onClick = {
-                        when (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)) {
-                            PackageManager.PERMISSION_GRANTED -> {
-                                val uri = createImageUri(context)
-                                cameraUri = uri
-                                takePictureLauncher.launch(uri)
+                    // Botones de imagen
+                    Button(
+                        onClick = { pickImageLauncher.launch("image/*") },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF4F7A),
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Seleccionar desde galería")
+                    }
+
+                    Button(
+                        onClick = {
+                            when (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.CAMERA
+                            )) {
+                                PackageManager.PERMISSION_GRANTED -> {
+                                    val uri = createImageUri(context)
+                                    cameraUri = uri
+                                    takePictureLauncher.launch(uri)
+                                }
+
+                                else -> requestCameraPermission.launch(Manifest.permission.CAMERA)
                             }
-                            else -> requestCameraPermission.launch(Manifest.permission.CAMERA)
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFAB47BC),
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Tomar foto con cámara")
-                }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF4F7A),
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Tomar foto con cámara")
+                    }
 
-                Divider(color = Color(0xFFB39DDB), thickness = 1.dp)
+                    Divider(color = Color(0xFF6B6B6B), thickness = 1.dp)
 
-                // --- Datos del usuario ---
-                Text("👤 Nombre: ${estado.nombre}", fontSize = 18.sp)
-                Text("👥 Apellido: ${estado.apellido}", fontSize = 18.sp)
-                Text("✉️ Correo: ${estado.correo}", fontSize = 18.sp)
-                Text("🏠 Dirección: ${estado.direccion}", fontSize = 18.sp)
-                Text(
-                    text = "📜 Términos aceptados: " +
-                            if (estado.aceptaTerminos) "✅ Aceptados" else "❌ Declinados",
-                    fontSize = 18.sp,
-                    color = if (estado.aceptaTerminos) Color(0xFF388E3C) else Color(0xFFD32F2F)
-                )
+                    // --- Datos del usuario ---
+                    Text("👤 Nombre: ${estado.nombre}", fontSize = 18.sp)
+                    Text("👥 Apellido: ${estado.apellido}", fontSize = 18.sp)
+                    Text("✉️ Correo: ${estado.correo}", fontSize = 18.sp)
+                    Text("🏠 Dirección: ${estado.direccion}", fontSize = 18.sp)
+                    Text(
+                        text = "📜 Términos aceptados: " +
+                                if (estado.aceptaTerminos) "✅ Aceptados" else "❌ Declinados",
+                        fontSize = 18.sp,
+                        color = if (estado.aceptaTerminos) Color(0xFF388E3C) else Color(0xFFD32F2F)
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = { navController.popBackStack() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Atrás")
+                    Button(
+                        onClick = { navController.popBackStack() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("CerrarSesion")
+                    }
                 }
             }
         }

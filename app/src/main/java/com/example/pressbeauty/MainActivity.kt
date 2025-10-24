@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = "UsuarioFormScreen"
+                startDestination = "InicioCatalogoScreen"
             ) {
 
                 composable("UsuarioFormScreen") {

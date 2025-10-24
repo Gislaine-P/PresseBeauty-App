@@ -110,4 +110,5 @@ class CarritoViewModel : ViewModel() {
     fun limpiarCarrito() {
         _carrito.value = _carrito.value.copy(productos = emptyList(), total = 0)
     }
+
 }
