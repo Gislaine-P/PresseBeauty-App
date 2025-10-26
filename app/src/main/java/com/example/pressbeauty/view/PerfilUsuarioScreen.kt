@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.pressbeauty.view.components.BottomNavBar
+//import com.example.pressbeauty.view.components.BottomNavBar
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 import java.io.File
 import java.text.SimpleDateFormat
@@ -73,7 +73,7 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
     }
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController) }
+        //bottomBar = { BottomNavBar(navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -185,7 +185,11 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
-                onClick = { navController.graph.startDestinationId  },
+                onClick = {
+                    navController.navigate("LoginScreen") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()

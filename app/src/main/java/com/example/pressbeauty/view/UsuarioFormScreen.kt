@@ -221,7 +221,7 @@ fun UsuarioFormScreen(
             }
             Button(
                 onClick = {
-                    navController.navigate("UsuarioFormScreen")
+                    navController.navigate("LoginScreen")
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {

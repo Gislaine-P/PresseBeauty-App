@@ -12,10 +12,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.pressbeauty.view.CarritoScreen
 import com.example.pressbeauty.view.InicioCatalogoScreen
+import com.example.pressbeauty.view.LoginScreen
 import com.example.pressbeauty.view.PerfilUsuarioScreen
 import com.example.pressbeauty.view.ProductoScreen
 import com.example.pressbeauty.view.UsuarioFormScreen
 import com.example.pressbeauty.viewmodel.CarritoViewModel
+import com.example.pressbeauty.viewmodel.LoginViewModel
 import com.example.pressbeauty.viewmodel.ProductoViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 
@@ -28,11 +30,18 @@ class MainActivity : ComponentActivity() {
             val usuarioViewModel: UsuarioViewModel = viewModel()
             val productoViewModel: ProductoViewModel = viewModel()
             val carritoViewModel : CarritoViewModel = viewModel()
+            val loginViewModel : LoginViewModel = viewModel()
 
             NavHost(
                 navController = navController,
-                startDestination = "InicioCatalogoScreen"
+                startDestination = "LoginScreen"
             ) {
+                composable("LoginScreen") {
+                    LoginScreen(
+                        navController = navController,
+                        viewModel = loginViewModel
+                    )
+                }
 
                 composable("UsuarioFormScreen") {
                     UsuarioFormScreen(

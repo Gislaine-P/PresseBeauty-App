@@ -49,7 +49,6 @@ class UsuarioViewModel(
     fun onAceptarTerminosChange(valor : Boolean) {
         _estado.update { it.copy(aceptaTerminos = valor) }
     }
-
     fun validarFormulario(): Boolean{
         val estadoActual = estado.value
         val errores = UsuarioErrores(
@@ -74,4 +73,7 @@ class UsuarioViewModel(
 
         return !hayErrores
     }
+    
+
+
 }

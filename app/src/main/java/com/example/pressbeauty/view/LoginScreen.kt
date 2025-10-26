@@ -1,6 +1,7 @@
 package com.example.pressbeauty.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -39,22 +42,34 @@ fun LoginScreen(
     ){
         Box(modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.4f))
+            .background(brush = Brush.linearGradient(
+                colors = listOf(
+                    Color(0xFFF4A6C1),
+                    Color(0xFFD19FE0),
+                    Color(0xFFF06292),
+                    Color(0xFFFFB07C)
+                ),
+                start = Offset(0f, 0f),
+                end = Offset(1000f, 1000f))
+            )
         )
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+
+
 
         ){
             OutlinedTextField(
-                value = estado.nombre,
+                value = estado2.nombre,
                 onValueChange = viewModel::onNombreChange,
                 label = { Text("Nombre de Usuario") },
-                isError = estado.errores.nombre != null,
+                isError = estado2.errores2.nombre != null,
                 supportingText = {
-                    estado.errores.nombre?.let {
+                    estado2.errores2.nombre?.let {
                         Text(it, color = MaterialTheme.colorScheme.error)
                     }
                 },modifier = Modifier.fillMaxWidth(),
@@ -70,12 +85,12 @@ fun LoginScreen(
                 )
             )
             OutlinedTextField(
-                value = estado.clave,
+                value = estado2.clave,
                 onValueChange = viewModel::onClaveChange,
                 label={Text("Contraseña")},
-                isError = estado.errores.clave!=null,
+                isError = estado2.errores2.clave!=null,
                 supportingText = {
-                    estado.errores.clave?.let{
+                    estado2.errores2.clave?.let{
                         Text(it,color = MaterialTheme.colorScheme.error)
                     }
                 },modifier = Modifier.fillMaxWidth(),
@@ -90,6 +105,27 @@ fun LoginScreen(
                     focusedLabelColor = Color(0xFF6A1B9A)
                 )
             )
+            Button(
+                onClick = { navController.navigate("PerfilUsuarioScreen") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            ) {
+                Text("Iniciar sesión")
+            }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("¿No tienes cuenta? ")
+                Text(
+                    text = "Regístrate",
+                    color = Color(0xFF6A1B9A),
+                    modifier = Modifier.clickable {
+                        navController.navigate("UsuarioFormScreen")
+                    }
+                )
+            }
         }
     }
 }
