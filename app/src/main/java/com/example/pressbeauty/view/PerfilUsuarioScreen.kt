@@ -42,7 +42,6 @@ fun PerfilUsuarioScreen(
     imagenPerfilViewModel: ImagenPerfilViewModel,
     navController: NavController
 ) {
-    // Estados de ambos ViewModels
     val estado by usuarioViewModel.estado.collectAsState()
     val imagenUri by imagenPerfilViewModel.imageUri.collectAsState()
     val context = LocalContext.current
@@ -54,7 +53,6 @@ fun PerfilUsuarioScreen(
             imagenPerfilViewModel.guardarImagenPermanente(context, it)
         }
     }
-
 
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -101,8 +99,6 @@ fun PerfilUsuarioScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-
-            // Imagen circular
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -119,7 +115,6 @@ fun PerfilUsuarioScreen(
                     contentScale = ContentScale.Crop
                 )
             }
-
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "${estado.nombre} ${estado.apellido}",
@@ -127,16 +122,12 @@ fun PerfilUsuarioScreen(
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E1C1C)
             )
-
             Text(
                 text = estado.correo,
                 fontSize = 14.sp,
                 color = Color.Gray
             )
-
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Botones para imagen
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -149,7 +140,6 @@ fun PerfilUsuarioScreen(
                 ) {
                     Text("Galería", color = Color.White)
                 }
-
                 Button(
                     onClick = {
                         when (ContextCompat.checkSelfPermission(
@@ -171,10 +161,7 @@ fun PerfilUsuarioScreen(
                     Text("Cámara", color = Color.White)
                 }
             }
-
             Spacer(modifier = Modifier.height(30.dp))
-
-            // Datos del usuario
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -194,11 +181,14 @@ fun PerfilUsuarioScreen(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(30.dp))
-
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    usuarioViewModel.limpiarDatos()
+                    navController.navigate("LoginScreen") {
+                        popUpTo(0)
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()

@@ -35,4 +35,7 @@ class LoginViewModel : ViewModel (
 
           return !hayErrores
      }
+     fun limpiarCampos() {
+          _estado2.value = LoginUI(nombre = "", clave = "")
+     }
 }

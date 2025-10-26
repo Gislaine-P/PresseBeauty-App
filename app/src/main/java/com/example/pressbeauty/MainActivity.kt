@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.pressbeauty.model.BaseCompra
 import com.example.pressbeauty.model.Baseusuario
 import com.example.pressbeauty.repository.CompraRepository
+import com.example.pressbeauty.repository.SesionDataStore
 import com.example.pressbeauty.repository.UsuarioRepositorio
 import com.example.pressbeauty.view.CarritoScreen
 import com.example.pressbeauty.view.InicioCatalogoScreen
@@ -36,26 +39,34 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val context = LocalContext.current
+            val sesionDataStore = remember { SesionDataStore(context) }
             val productoViewModel: ProductoViewModel = viewModel()
             val carritoViewModel : CarritoViewModel = viewModel()
             val imagenPerfilViewModel : ImagenPerfilViewModel = viewModel()
             val db = remember { Baseusuario.getDatabase(context) }
             val dbc = remember { BaseCompra.getDatabase(context) }
             val repositorio = remember { UsuarioRepositorio(db.usuarioDao()) }
-            val usuarioViewModel =remember { UsuarioViewModel(repositorio) }
+            val usuarioViewModel =remember { UsuarioViewModel(repositorio, sesionDataStore) }
             val compraRepositorio = remember { CompraRepository(dbc.compraDao()) }
             val compraViewModel = remember { CompraViewModel(compraRepositorio) }
             val loginViewModel : LoginViewModel = viewModel()
+            val estaLogueado = remember { mutableStateOf(false) }
+
+            LaunchedEffect(Unit) {
+                estaLogueado.value = usuarioViewModel.estaLogueado()
+            }
+
 
             NavHost(
                 navController = navController,
-                startDestination = "LoginScreen"
+                startDestination = if (estaLogueado.value) "PerfilUsuarioScreen" else "LoginScreen"
             ) {
 
                 composable("LoginScreen"){
                     LoginScreen(
                         navController = navController,
-                        loginViewModel = loginViewModel
+                        loginViewModel = loginViewModel,
+                        usuarioViewModel = usuarioViewModel
                     )
                 }
 

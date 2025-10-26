@@ -15,4 +15,7 @@ interface UsuarioDao{
 
     @Delete
     suspend fun eliminar(usuario: Usuariobase)
+
+    @Query("SELECT * FROM usuarios WHERE nombre = :nombre AND clave = :clave LIMIT 1")
+    suspend fun obtenerUsuarioPorCredenciales(nombre: String, clave: String): Usuariobase?
 }
