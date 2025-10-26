@@ -7,11 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class ProductoViewModel : ViewModel() {
-
-    /*Crea una variable priv que guarda el estado interno de VM
-    * MutableStateFlow se puede modificar su valor dentro del VM
-    * List es el tipo de dato que guarda una lista
-    * emptyList mantiene valor inicial una lista vacia*/
     private val _productos = MutableStateFlow(listOf(
         ProductoUI(
             "1",
@@ -73,12 +68,6 @@ class ProductoViewModel : ViewModel() {
         )
     )
 
-    /*StateFlow forma moderna de guardar un estado y notificar cambios,
-    * mantiene valor actual y avisa cuando el valor cambia para que UI se actualice sola
-    *
-    * Version publica de _productos, la vista compose puede leerlo y ver cambios pero no modificarlo
-    * Stateflow sin mutable, solo lectura
-    * pantalla puede mirar la lista de productos pero no cambiarla*/
     val productos: StateFlow<List<ProductoUI>> = _productos
 
 }

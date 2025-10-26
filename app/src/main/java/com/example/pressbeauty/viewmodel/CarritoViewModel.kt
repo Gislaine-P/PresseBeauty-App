@@ -1,28 +1,57 @@
 package com.example.pressbeauty.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.pressbeauty.datastore.CarritoDataStore
 import com.example.pressbeauty.model.CarritoUI
 import com.example.pressbeauty.model.DetalleCarritoUI
 import com.example.pressbeauty.model.ProductoUI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.UUID
 
-class CarritoViewModel : ViewModel() {
+class CarritoViewModel(application: Application): AndroidViewModel(application) {
 
+    private val dataStore = CarritoDataStore(application)
     // Estado del carrito
     private val _carrito = MutableStateFlow(
         CarritoUI(
             idCarrito = UUID.randomUUID().toString(),
-            idUsuario = "1", // luego puedes reemplazar por el usuario real desde DataStore
+            idUsuario = "1",
             productos = emptyList(),
             total = 0
         )
     )
     val carrito: StateFlow<CarritoUI> = _carrito
 
-    /** ✅ Agregar producto al carrito */
+
+    init {
+        viewModelScope.launch {
+            val carritoGuardado = dataStore.obtenerCarrito().first()
+            if(carritoGuardado.productos.isNotEmpty()){
+                _carrito.value = carritoGuardado
+            }
+        }
+    }
+
+    private fun guardarEstado(){
+        viewModelScope.launch {
+            dataStore.guardarCarrito(_carrito.value)
+        }
+    }
+
+    private fun vaciarCarro(){
+        viewModelScope.launch {
+            dataStore.limpiarCarrito()
+        }
+    }
+
+
+
     fun agregarProducto(producto: ProductoUI, cantidadProd : Int) {
         _carrito.update { carritoActual ->
             val listaActual = carritoActual.productos.toMutableList()
@@ -53,10 +82,11 @@ class CarritoViewModel : ViewModel() {
                 total = listaActual.sumOf { it.subtotalCarrito}
             )
         }
+        guardarEstado()
     }
 
 
-    /** 🗑️ Eliminar producto del carrito */
+
     fun eliminarProducto(idProducto: String) {
         _carrito.update { carritoActual ->
             val listaActual = carritoActual.productos.filterNot { it.idProducto == idProducto }
@@ -65,9 +95,10 @@ class CarritoViewModel : ViewModel() {
                 total = listaActual.sumOf { it.subtotalCarrito }
             )
         }
+        guardarEstado()
     }
 
-    /** ➕ Aumentar cantidad */
+
     fun aumentarCantidad(idProducto: String) {
         _carrito.update { carritoActual ->
             val listaActual = carritoActual.productos.map {
@@ -84,9 +115,10 @@ class CarritoViewModel : ViewModel() {
                 total = listaActual.sumOf { it.subtotalCarrito }
             )
         }
+        guardarEstado()
     }
 
-    /** ➖ Disminuir cantidad */
+
     fun disminuirCantidad(idProducto: String) {
         _carrito.update { carritoActual ->
             val listaActual = carritoActual.productos.mapNotNull {
@@ -105,11 +137,12 @@ class CarritoViewModel : ViewModel() {
                 total = listaActual.sumOf { it.subtotalCarrito }
             )
         }
+        guardarEstado()
     }
 
-    /** 🧹 Vaciar carrito */
     fun limpiarCarrito() {
         _carrito.value = _carrito.value.copy(productos = emptyList(), total = 0)
+        vaciarCarro()
     }
 
 }

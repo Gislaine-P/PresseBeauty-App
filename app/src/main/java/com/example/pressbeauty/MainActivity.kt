@@ -16,6 +16,7 @@ import com.example.pressbeauty.view.PerfilUsuarioScreen
 import com.example.pressbeauty.view.ProductoScreen
 import com.example.pressbeauty.view.UsuarioFormScreen
 import com.example.pressbeauty.viewmodel.CarritoViewModel
+import com.example.pressbeauty.viewmodel.ImagenPerfilViewModel
 import com.example.pressbeauty.viewmodel.ProductoViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
             val usuarioViewModel: UsuarioViewModel = viewModel()
             val productoViewModel: ProductoViewModel = viewModel()
             val carritoViewModel : CarritoViewModel = viewModel()
+            val imagenPerfilViewModel : ImagenPerfilViewModel = viewModel()
 
             NavHost(
                 navController = navController,
@@ -42,8 +44,10 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("PerfilUsuarioScreen") {
                     PerfilUsuarioScreen(
-                        viewModel = usuarioViewModel,
+                        usuarioViewModel = usuarioViewModel,
+                        imagenPerfilViewModel = imagenPerfilViewModel,
                         navController = navController
+
                     )
                 }
 
