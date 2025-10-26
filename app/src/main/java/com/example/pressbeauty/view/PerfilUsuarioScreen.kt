@@ -29,27 +29,40 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.pressbeauty.view.components.BottomNavBar
+import com.example.pressbeauty.view.components.NavInferior
+import com.example.pressbeauty.viewmodel.ImagenPerfilViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavController) {
-    val estado by viewModel.estado.collectAsState()
-    val imagenUri by viewModel.imagenUri.collectAsState()
+fun PerfilUsuarioScreen(
+    usuarioViewModel: UsuarioViewModel,
+    imagenPerfilViewModel: ImagenPerfilViewModel,
+    navController: NavController
+) {
+    // Estados de ambos ViewModels
+    val estado by usuarioViewModel.estado.collectAsState()
+    val imagenUri by imagenPerfilViewModel.imageUri.collectAsState()
     val context = LocalContext.current
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri -> viewModel.setImage(uri) }
+    ) { uri ->
+        uri?.let {
+            imagenPerfilViewModel.guardarImagenPermanente(context, it)
+        }
+    }
+
 
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
 
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { success -> if (success) viewModel.setImage(cameraUri) }
+    ) { success ->
+        if (success) imagenPerfilViewModel.setImage(cameraUri)
+    }
 
     fun createImageUri(context: Context): Uri {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
@@ -73,7 +86,7 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
     }
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { NavInferior(navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -110,14 +123,14 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "${estado.nombre} ${estado.apellido}",
-                fontSize = 10.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E1C1C)
             )
 
             Text(
                 text = estado.correo,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = Color.Gray
             )
 
@@ -172,11 +185,11 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Dirección: ${estado.direccion}", fontSize = 18.sp)
+                    Text("Dirección: ${estado.direccion}", fontSize = 16.sp)
                     Text(
                         "Términos: " +
                                 if (estado.aceptaTerminos) "Aceptados" else "No aceptados",
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         color = if (estado.aceptaTerminos) Color(0xFF388E3C) else Color(0xFFD32F2F)
                     )
                 }
@@ -186,12 +199,6 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
 
             Button(
                 onClick = { navController.popBackStack() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Editar Datos")
-            }
-            Button(
-                onClick = { navController.graph.startDestinationId  },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()

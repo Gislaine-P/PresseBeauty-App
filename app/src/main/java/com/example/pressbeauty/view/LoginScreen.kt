@@ -34,9 +34,9 @@ import com.example.pressbeauty.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     navController : NavController,
-    viewModel: LoginViewModel
+    loginViewModel: LoginViewModel
 ){
-    val estado2 by viewModel.estado2.collectAsState()
+    val estado2 by loginViewModel.estado2.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()
     ){
@@ -65,7 +65,7 @@ fun LoginScreen(
         ){
             OutlinedTextField(
                 value = estado2.nombre,
-                onValueChange = viewModel::onNombreChange,
+                onValueChange = loginViewModel::onNombreChange,
                 label = { Text("Nombre de Usuario") },
                 isError = estado2.errores2.nombre != null,
                 supportingText = {
@@ -86,7 +86,7 @@ fun LoginScreen(
             )
             OutlinedTextField(
                 value = estado2.clave,
-                onValueChange = viewModel::onClaveChange,
+                onValueChange = loginViewModel::onClaveChange,
                 label={Text("Contraseña")},
                 isError = estado2.errores2.clave!=null,
                 supportingText = {
