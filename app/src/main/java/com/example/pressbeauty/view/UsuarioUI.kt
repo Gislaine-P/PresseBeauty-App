@@ -1,6 +1,7 @@
-package com.example.pressbeauty.model
+package com.example.pressbeauty.view
 
 import android.net.Uri
+import com.example.pressbeauty.view.UsuarioErrores
 
 data class UsuarioUI(
     val idUsuario : String,

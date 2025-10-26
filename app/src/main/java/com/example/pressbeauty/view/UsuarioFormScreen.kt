@@ -201,6 +201,7 @@ fun UsuarioFormScreen(
             Button(
                 onClick = {
                     if (viewModel.validarFormulario()) {
+                        viewModel.guardarUsuario()
                         navController.navigate("InicioCatalogoScreen")
                     }
                 },

@@ -43,9 +43,9 @@ android {
 }
 
 dependencies{
-    implementation ("androidx.room:room-runtime:2.6.1")
-    kapt ("androidx.room:room-compiler:2.6.1")
-    implementation ("androidx.room:room-ktx:2.6.1")
+    implementation ("androidx.room:room-runtime:2.7.0-alpha02")
+    kapt ("androidx.room:room-compiler:2.7.0-alpha02")
+    implementation ("androidx.room:room-ktx:2.7.0-alpha02")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0-rc02")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")

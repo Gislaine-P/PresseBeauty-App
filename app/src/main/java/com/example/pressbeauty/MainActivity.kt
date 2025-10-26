@@ -5,11 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.pressbeauty.model.Baseusuario
+import com.example.pressbeauty.repository.UsuarioRepositorio
 import com.example.pressbeauty.view.CarritoScreen
 import com.example.pressbeauty.view.InicioCatalogoScreen
 import com.example.pressbeauty.view.PerfilUsuarioScreen
@@ -25,9 +29,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val usuarioViewModel: UsuarioViewModel = viewModel()
+            val context = LocalContext.current
             val productoViewModel: ProductoViewModel = viewModel()
             val carritoViewModel : CarritoViewModel = viewModel()
+            val db = remember { Baseusuario.getDatabase(context) }
+            val repositorio = remember { UsuarioRepositorio(db.usuarioDao()) }
+            val usuarioViewModel =remember { UsuarioViewModel(repositorio) }
 
             NavHost(
                 navController = navController,

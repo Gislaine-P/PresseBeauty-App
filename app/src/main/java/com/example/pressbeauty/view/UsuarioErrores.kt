@@ -1,4 +1,4 @@
-package com.example.pressbeauty.model
+package com.example.pressbeauty.view
 
 data class UsuarioErrores(
     val nombre : String? = null,

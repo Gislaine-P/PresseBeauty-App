@@ -185,6 +185,12 @@ fun PerfilUsuarioScreen(viewModel: UsuarioViewModel, navController: NavControlle
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Editar Datos")
+            }
+            Button(
                 onClick = { navController.graph.startDestinationId  },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
                 shape = RoundedCornerShape(16.dp),

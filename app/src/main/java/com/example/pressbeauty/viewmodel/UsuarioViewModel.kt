@@ -1,15 +1,19 @@
 package com.example.pressbeauty.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.pressbeauty.model.UsuarioErrores
-import com.example.pressbeauty.model.UsuarioUI
+import androidx.lifecycle.viewModelScope
+import com.example.pressbeauty.model.Usuariobase
+import com.example.pressbeauty.repository.UsuarioRepositorio
+import com.example.pressbeauty.view.UsuarioErrores
+import com.example.pressbeauty.view.UsuarioUI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
-class UsuarioViewModel : ViewModel() {
+class UsuarioViewModel (private val repositorio: UsuarioRepositorio): ViewModel() {
 
 
 
@@ -76,7 +80,20 @@ class UsuarioViewModel : ViewModel() {
 
         return !hayErrores
     }
-    
-
-
+    fun guardarUsuario(){
+        val estadoActual = estado.value
+        if (validarFormulario()){
+            viewModelScope.launch {
+                val nuevoUsuario = Usuariobase(
+                    nombre = estadoActual.nombre,
+                    apellido = estadoActual.apellido,
+                    correo = estadoActual.correo,
+                    clave = estadoActual.clave,
+                    direccion = estadoActual.direccion,
+                    aceptaTerminos = estadoActual.aceptaTerminos
+                )
+                repositorio.insertar(nuevoUsuario)
+            }
+        }
+    }
 }

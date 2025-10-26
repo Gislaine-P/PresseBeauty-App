@@ -1,18 +1,18 @@
 package com.example.pressbeauty.model
-import androidx.room.*
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 @Dao
-interface UsuarioDao {
+interface UsuarioDao{
     @Query("SELECT * FROM usuarios ORDER BY id DESC")
-    suspend fun obtenerUsuarios(): List<UsuarioUI>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertar(usuario: UsuarioUI)
+    suspend fun obtenerUsuarios(): List<Usuariobase>
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    suspend fun insertar(usuario: Usuariobase)
 
     @Delete
-    suspend fun eliminar(usuario: UsuarioUI)
-
-    @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
-    suspend fun login(correo: String, clave: String): UsuarioUI?
+    suspend fun eliminar(usuario: Usuariobase)
 }
