@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.pressbeauty.R
-import com.example.pressbeauty.view.components.BottomNavBar
+import com.example.pressbeauty.view.components.NavInferior
 import com.example.pressbeauty.viewmodel.CarritoViewModel
 import com.example.pressbeauty.viewmodel.ProductoViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
@@ -46,7 +46,7 @@ fun InicioCatalogoScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { NavInferior(navController) }
     ) { paddingValues ->
 
         if (isLoading) {

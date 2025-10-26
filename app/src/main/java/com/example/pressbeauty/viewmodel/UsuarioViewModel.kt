@@ -1,28 +1,31 @@
 package com.example.pressbeauty.viewmodel
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.pressbeauty.model.UsuarioErrores
 import com.example.pressbeauty.model.UsuarioUI
-import com.example.pressbeauty.repository.PerfilUsuRepositorio
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 
-class UsuarioViewModel(
-    private val repositorio: PerfilUsuRepositorio = PerfilUsuRepositorio()) : ViewModel()
-{
-    private val _estado = MutableStateFlow(UsuarioUI(idUsuario = "", nombre = "", apellido = "", correo = "", direccion = "", clave = "", repClave = ""))
 
-    val estado : StateFlow<UsuarioUI> = _estado
+class UsuarioViewModel : ViewModel() {
 
-    private val _imagenUri = MutableStateFlow<Uri?>(repositorio.getProfile().imagenUri)
-    val imagenUri: StateFlow<Uri?> = _imagenUri
 
-    fun setImage(uri: Uri?){
-        _imagenUri.value = uri
-        repositorio.updateImage(uri)
-    }
+
+    private val _estado = MutableStateFlow(
+        UsuarioUI(
+            idUsuario = "",
+            nombre = "",
+            apellido = "",
+            correo = "",
+            direccion = "",
+            clave = "",
+            repClave = ""
+        )
+    )
+
+    val estado: StateFlow<UsuarioUI> = _estado
 
     fun setNombreUsuario(nombre: String) {
         _estado.update { it.copy(nombre = nombre) }

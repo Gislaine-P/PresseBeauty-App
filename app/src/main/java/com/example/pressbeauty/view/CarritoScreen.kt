@@ -19,8 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.pressbeauty.view.components.BottomNavBar
+import com.example.pressbeauty.view.components.NavInferior
 import com.example.pressbeauty.viewmodel.CarritoViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun CarritoScreen(
@@ -28,9 +29,10 @@ fun CarritoScreen(
     carritoViewModel: CarritoViewModel
 ) {
     val carrito by carritoViewModel.carrito.collectAsState()
+    val scope = rememberCoroutineScope()
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { NavInferior(navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -54,7 +56,6 @@ fun CarritoScreen(
                     .padding(vertical = 12.dp)
             )
 
-            // Si el carrito está vacío
             AnimatedVisibility(visible = carrito.productos.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -70,7 +71,6 @@ fun CarritoScreen(
                 }
             }
 
-            // Si hay productos
             AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -154,7 +154,7 @@ fun CarritoScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Total y botón de compra
+
             AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
                 Column(
                     modifier = Modifier
@@ -172,8 +172,12 @@ fun CarritoScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
-                            carritoViewModel.limpiarCarrito()
-                            navController.navigate("InicioCatalogoScreen")
+                            scope.launch {
+                                carritoViewModel.limpiarCarrito() // ✅ limpia memoria y DataStore
+                                navController.navigate("InicioCatalogoScreen") {
+                                    popUpTo("CarritoScreen") { inclusive = true }
+                                }
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
                         modifier = Modifier.fillMaxWidth(),

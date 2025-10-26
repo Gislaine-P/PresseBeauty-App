@@ -1,11 +1,8 @@
 package com.example.pressbeauty.model
 
 import android.net.Uri
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-@Entity(tableName = "usuarios")
+
 data class UsuarioUI(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val idUsuario : String,
     val imagenUri : Uri? = null,
     val nombre : String = "",

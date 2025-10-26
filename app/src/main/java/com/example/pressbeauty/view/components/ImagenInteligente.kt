@@ -1,4 +1,4 @@
-package com.example.pressbeauty.view.Components
+package com.example.pressbeauty.view.components
 
 import android.net.Uri
 import androidx.compose.foundation.Image
