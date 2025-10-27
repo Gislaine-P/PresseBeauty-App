@@ -17,7 +17,7 @@ import java.util.UUID
 class CarritoViewModel(application: Application): AndroidViewModel(application) {
 
     private val dataStore = CarritoDataStore(application)
-    // Estado del carrito
+
     private val _carrito = MutableStateFlow(
         CarritoUI(
             idCarrito = UUID.randomUUID().toString(),

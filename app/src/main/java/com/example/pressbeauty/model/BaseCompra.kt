@@ -1,4 +1,4 @@
-package com.example.pressbeauty.model // o donde esté actualmente tu DB
+package com.example.pressbeauty.model
 
 import android.content.Context
 import androidx.room.Database

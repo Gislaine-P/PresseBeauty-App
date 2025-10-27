@@ -2,6 +2,7 @@ package com.example.pressbeauty.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,160 +31,125 @@ fun ProductoScreen(
     val productos by productoViewModel.productos.collectAsState()
     var cantidadProd by remember { mutableStateOf(1) }
     val producto = productos.find { it.idProducto == idProducto }
-
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color(0xFFFFFDFD)
     ) { paddingValues ->
-
         if (producto != null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color(0xFFFFECDC), Color(0xFFFFFAF8))
+                            listOf(Color(0xFFFFF5F3), Color.White)
                         )
                     )
                     .padding(paddingValues)
-                    .padding(2.dp),
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Card(
-                    shape = RoundedCornerShape(5.dp),
-                    elevation = CardDefaults.cardElevation(5.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    modifier = Modifier.fillMaxWidth()
+
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.TopStart
                 ) {
                     Button(
                         onClick = { navController.popBackStack() },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDA3B68)),
-                        shape = RoundedCornerShape(1.dp),
-                        modifier = Modifier.weight(1f)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.size(42.dp)
                     ) {
-                        Text("<", color = Color.White, fontSize = 20.sp)
+                        Text("<", fontSize = 20.sp, color = Color.White)
                     }
-                    AsyncImage(
-                        model = producto.imagenUrl,
-                        contentDescription = producto.nombreProducto,
-                        modifier = Modifier
-                            .height(400.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(0.dp)),
-                        contentScale = ContentScale.Crop,
+                }
 
-                        )
-                    Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
+                AsyncImage(
+                    model = producto.imagenUrl,
+                    contentDescription = producto.nombreProducto,
+                    modifier = Modifier
+                        .height(350.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    Text(
-                        text = producto.nombreProducto,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 30.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                Text(
+                    producto.nombreProducto,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    color = Color(0xFFB06F6F)
+                )
 
-                        color = Color(0xFF802544)
-                    )
+                Spacer(modifier = Modifier.height(10.dp))
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    producto.descripcionProducto,
+                    color = Color.DarkGray,
+                    lineHeight = 22.sp,
+                    fontSize = 16.sp
+                )
 
-                    Text(
-                        text = producto.descripcionProducto,
-                        fontSize = 18.sp,
-                        color = Color.DarkGray,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                    )
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                Text(
+                    "Precio: $${producto.precioProducto}",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp,
+                    color = Color(0xFFB06F6F)
+                )
 
-                        Text(
-                            text = "Precio: $${producto.precioProducto}",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = Color(0xFF802544),
-                            modifier = Modifier.padding(horizontal = 10.dp),
-
-                            )
-
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Button(
-                                onClick = { if (cantidadProd > 1) cantidadProd-- },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(
-                                        0xFFFF4F7A
-                                    )
-                                ),
-                                shape = RoundedCornerShape(5.dp)
-                            ) {
-                                Text("-", fontSize = 15.sp, color = Color.White)
-                            }
-
-                            Spacer(modifier = Modifier.width(15.dp))
-
-                            Text(
-                                text = cantidadProd.toString(),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 17.sp,
-                                color = Color.Black
-                            )
-
-                            Spacer(modifier = Modifier.width(15.dp))
-
-                            Button(
-                                onClick = { cantidadProd++ },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(
-                                        0xFFFF4F7A
-                                    )
-                                ),
-                                shape = RoundedCornerShape(5.dp)
-                            ) {
-                                Text("+", fontSize = 15.sp, color = Color.White)
-                            }
-                        }
-                    }
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    OutlinedButton(
+                        onClick = { if (cantidadProd > 1) cantidadProd-- },
+                        border = ButtonDefaults.outlinedButtonBorder,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F))
+                    ) { Text("-") }
 
-                    Button(
-                        onClick = {
-                            carritoViewModel.agregarProducto(producto, cantidadProd)
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Producto agregado al carrito")
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-                        shape = RoundedCornerShape(100.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Añadir al carrito", color = Color.White, fontSize = 16.sp)
-                    }
+                    Text(
+                        "$cantidadProd",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+
+                    OutlinedButton(
+                        onClick = { cantidadProd++ },
+                        border = ButtonDefaults.outlinedButtonBorder,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F))
+                    ) { Text("+") }
                 }
-            }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = {
+                        carritoViewModel.agregarProducto(producto, cantidadProd)
+                        scope.launch { snackbarHostState.showSnackbar("Producto agregado al carrito") }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Añadir al carrito", color = Color.White, fontSize = 17.sp)
+                }
             }
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFFFFFAF8)),
+                    .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Producto no encontrado", color = Color.Gray, fontSize = 18.sp)

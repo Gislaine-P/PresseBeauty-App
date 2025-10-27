@@ -48,29 +48,18 @@ fun PerfilUsuarioScreen(
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            imagenPerfilViewModel.guardarImagenPermanente(context, it)
-        }
-    }
+    ) { uri -> uri?.let { imagenPerfilViewModel.guardarImagenPermanente(context, it) } }
 
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
-
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) imagenPerfilViewModel.setImage(cameraUri)
-    }
+    ) { success -> if (success) imagenPerfilViewModel.setImage(cameraUri) }
 
     fun createImageUri(context: Context): Uri {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val file = File.createTempFile("JPEG_${timestamp}_", ".jpg", storageDir)
-        return FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
+        return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     }
 
     val requestCameraPermission = rememberLauncherForActivityResult(
@@ -83,69 +72,57 @@ fun PerfilUsuarioScreen(
         }
     }
 
-    Scaffold(
-        bottomBar = { NavInferior(navController) }
-    ) { paddingValues ->
+    Scaffold(bottomBar = { NavInferior(navController) }, containerColor = Color(0xFFFFFDFD)) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color(0xFFFFECDC), Color(0xFFFFFAF8))
-                    )
-                )
+                .background(Brush.verticalGradient(listOf(Color(0xFFFFF5F3), Color.White)))
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
+
             Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .clip(CircleShape)
-                    .shadow(8.dp, CircleShape)
+                modifier = Modifier.size(140.dp).clip(CircleShape).shadow(8.dp, CircleShape)
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(
-                        model = imagenUri
-                            ?: "https://i.pinimg.com/736x/0c/28/b9/0c28b934fc773ed7c9d35b829d5356b9.jpg"
+                        model = imagenUri ?: "https://i.pinimg.com/736x/0c/28/b9/0c28b934fc773ed7c9d35b829d5356b9.jpg"
                     ),
                     contentDescription = "Foto de perfil",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
+
             Spacer(modifier = Modifier.height(20.dp))
+
             Text(
                 text = "${estado.nombre} ${estado.apellido}",
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E1C1C)
+                color = Color(0xFFB06F6F)
             )
-            Text(
-                text = estado.correo,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = estado.correo, fontSize = 14.sp, color = Color.Gray)
+
+            Spacer(modifier = Modifier.height(30.dp))
+
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
                     onClick = { pickImageLauncher.launch("image/*") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-                    shape = RoundedCornerShape(5.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Galería", color = Color.White)
                 }
                 Button(
                     onClick = {
-                        when (ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                        )) {
+                        when (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)) {
                             PackageManager.PERMISSION_GRANTED -> {
                                 val uri = createImageUri(context)
                                 cameraUri = uri
@@ -154,43 +131,41 @@ fun PerfilUsuarioScreen(
                             else -> requestCameraPermission.launch(Manifest.permission.CAMERA)
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Cámara", color = Color.White)
                 }
             }
+
             Spacer(modifier = Modifier.height(30.dp))
+
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(5.dp),
+                elevation = CardDefaults.cardElevation(3.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Dirección: ${estado.direccion}", fontSize = 16.sp)
                     Text(
-                        "Términos: " +
-                                if (estado.aceptaTerminos) "Aceptados" else "No aceptados",
+                        "Términos: " + if (estado.aceptaTerminos) "Aceptados" else "No aceptados",
                         fontSize = 16.sp,
-                        color = if (estado.aceptaTerminos) Color(0xFF388E3C) else Color(0xFFD32F2F)
+                        color = if (estado.aceptaTerminos) Color(0xFF6DBF73) else Color(0xFFD86C6C)
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(30.dp))
+
             Button(
                 onClick = {
                     usuarioViewModel.limpiarDatos()
-                    navController.navigate("LoginScreen") {
-                        popUpTo(0)
-                    }
+                    navController.navigate("LoginScreen") { popUpTo(0) }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Cerrar sesión", fontSize = 16.sp, color = Color.White)

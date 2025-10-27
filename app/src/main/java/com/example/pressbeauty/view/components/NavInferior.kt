@@ -12,11 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-data class NavItem(
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val route: String
-)
+data class NavItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val route: String)
 
 @Composable
 fun NavInferior(navController: NavController) {
@@ -28,30 +24,22 @@ fun NavInferior(navController: NavController) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
     var canNavigate by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
-    NavigationBar(
-        containerColor = Color(0xFFf2ebf1),
-        contentColor = Color(0xFFc8bfc7)
-    ) {
+    NavigationBar(containerColor = Color(0xFFFFF5F3), contentColor = Color(0xFFB8A1A1)) {
         items.forEach { item ->
             val selected = currentRoute == item.route
-
             NavigationBarItem(
                 selected = selected,
                 onClick = {
                     if (canNavigate && currentRoute != item.route) {
                         canNavigate = false
                         navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
-
                         scope.launch {
                             delay(400)
                             canNavigate = true
@@ -62,19 +50,13 @@ fun NavInferior(navController: NavController) {
                     Icon(
                         item.icon,
                         contentDescription = item.label,
-                        tint = if (selected)
-                            Color(0xFF474347)
-                        else
-                            Color(0xFF958d94)
+                        tint = if (selected) Color(0xFFB06F6F) else Color(0xFFB9AFAF)
                     )
                 },
                 label = {
                     Text(
                         text = item.label,
-                        color = if (selected)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (selected) Color(0xFFB06F6F) else Color(0xFFB9AFAF)
                     )
                 }
             )

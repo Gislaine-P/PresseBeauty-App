@@ -12,7 +12,6 @@ class CompraViewModel(
     private val repository: CompraRepository
 ) : ViewModel() {
 
-    // Estado opcional para mostrar historial en UI
     private val _comprasUsuario = MutableStateFlow<List<Compra>>(emptyList())
     val comprasUsuario: StateFlow<List<Compra>> = _comprasUsuario
 

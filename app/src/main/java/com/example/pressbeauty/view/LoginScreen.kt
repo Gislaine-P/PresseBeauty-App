@@ -3,15 +3,17 @@ package com.example.pressbeauty.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.pressbeauty.viewmodel.LoginViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
@@ -31,52 +33,46 @@ fun LoginScreen(
         loginViewModel.onClaveChange("")
     }
 
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFF4A6C1),
-                            Color(0xFFD19FE0),
-                            Color(0xFFF06292),
-                            Color(0xFFFFB07C)
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(1000f, 1000f)
-                    )
-                )
-        )
-
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFFFFF6F5), Color.White))
+            )
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
+            Text("Iniciar Sesión", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(0xFFB06F6F))
+
             OutlinedTextField(
                 value = estado2.nombre,
                 onValueChange = loginViewModel::onNombreChange,
                 label = { Text("Nombre de Usuario") },
-                isError = estado2.errores2.nombre != null,
-                supportingText = {
-                    estado2.errores2.nombre?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFF4B4B4),
+                    cursorColor = Color(0xFFB06F6F),
+                    focusedLabelColor = Color(0xFFB06F6F)
+                )
             )
 
             OutlinedTextField(
                 value = estado2.clave,
                 onValueChange = loginViewModel::onClaveChange,
                 label = { Text("Contraseña") },
-                isError = estado2.errores2.clave != null,
+                modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFF4B4B4),
+                    cursorColor = Color(0xFFB06F6F),
+                    focusedLabelColor = Color(0xFFB06F6F)
+                )
             )
 
             Button(
@@ -86,23 +82,22 @@ fun LoginScreen(
                             nombre = estado2.nombre,
                             clave = estado2.clave
                         ) { exito ->
-                            if (exito) {
-                                navController.navigate("PerfilUsuarioScreen")
-                            } else {
+                            if (exito) navController.navigate("PerfilUsuarioScreen")
+                            else {
                                 mensajeAlerta = "Usuario o contraseña incorrectos."
                                 mostrarAlerta = true
                             }
                         }
                     } else {
-                        mensajeAlerta = "Por favor completa todos los campos antes de iniciar sesión."
+                        mensajeAlerta = "Completa todos los campos antes de iniciar sesión."
                         mostrarAlerta = true
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Iniciar sesión")
+                Text("Iniciar sesión", color = Color.White, fontSize = 17.sp)
             }
 
             if (mostrarAlerta) {
@@ -110,22 +105,19 @@ fun LoginScreen(
                     onDismissRequest = { mostrarAlerta = false },
                     confirmButton = {
                         TextButton(onClick = { mostrarAlerta = false }) {
-                            Text("Aceptar", color = Color(0xFF6A1B9A))
+                            Text("Aceptar", color = Color(0xFFB06F6F))
                         }
                     },
-                    title = { Text("Inicio de sesión fallido") },
+                    title = { Text("Error") },
                     text = { Text(mensajeAlerta) }
                 )
             }
 
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row {
                 Text("¿No tienes cuenta? ")
                 Text(
                     text = "Regístrate",
-                    color = Color(0xFF6A1B9A),
+                    color = Color(0xFFB06F6F),
                     modifier = Modifier.clickable {
                         navController.navigate("UsuarioFormScreen")
                     }
@@ -134,6 +126,3 @@ fun LoginScreen(
         }
     }
 }
-
-
-

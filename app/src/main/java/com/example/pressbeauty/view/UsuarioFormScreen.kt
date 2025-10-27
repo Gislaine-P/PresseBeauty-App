@@ -1,222 +1,105 @@
 package com.example.pressbeauty.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 
-
 @Composable
 fun UsuarioFormScreen(
-    navController : NavController,
+    navController: NavController,
     viewModel: UsuarioViewModel
-){
+) {
     val estado by viewModel.estado.collectAsState()
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ){
-
-        Box(modifier = Modifier
+    Column(
+        modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.4f))
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFFFFF5F3), Color.White)
+                )
+            )
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "Crear cuenta",
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            color = Color(0xFFB06F6F)
         )
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            Arrangement.spacedBy(12.dp)
 
+        Campo(label = "Nombre", valor = estado.nombre, onChange = viewModel::onNombreChange, error = estado.errores.nombre)
+        Campo(label = "Apellido", valor = estado.apellido, onChange = viewModel::onApellidoChange, error = estado.errores.apellido)
+        Campo(label = "Correo", valor = estado.correo, onChange = viewModel::onCorreoChange, error = estado.errores.correo)
+        Campo(label = "Clave", valor = estado.clave, onChange = viewModel::onClaveChange, esClave = true, error = estado.errores.clave)
+        Campo(label = "Repetir Clave", valor = estado.repClave, onChange = viewModel::onRepClaveChange, esClave = true, error = estado.errores.repClave)
+        Campo(label = "Dirección", valor = estado.direccion, onChange = viewModel::onDireccionChange, error = estado.errores.direccion)
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = estado.aceptaTerminos, onCheckedChange = viewModel::onAceptarTerminosChange)
+            Text("Acepto los términos y condiciones", color = Color.DarkGray)
+        }
+
+        Button(
+            onClick = {
+                if (viewModel.validarFormulario()) {
+                    viewModel.guardarUsuario()
+                    navController.navigate("InicioCatalogoScreen")
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            OutlinedTextField(
-                value = estado.nombre,
-                onValueChange = viewModel::onNombreChange,
-                label = { Text("Nombre") },
-                isError = estado.errores.nombre != null,
-                supportingText = {
-                    estado.errores.nombre?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    unfocusedBorderColor = Color(0xFFB0BEC5),
-                    focusedBorderColor = Color(0xFF6A1B9A),
-                    cursorColor = Color(0xFF6A1B9A),
-                    focusedLabelColor = Color(0xFF6A1B9A)
-                )
+            Text("Registrar", color = Color.White)
+        }
 
-
-            )
-            OutlinedTextField(
-                value = estado.apellido,
-                onValueChange = viewModel::onApellidoChange,
-                label = { Text("Apellido") },
-                isError = estado.errores.apellido != null,
-                supportingText = {
-                    estado.errores.apellido?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    unfocusedBorderColor = Color(0xFFB0BEC5),
-                    focusedBorderColor = Color(0xFF6A1B9A),
-                    cursorColor = Color(0xFF6A1B9A),
-                    focusedLabelColor = Color(0xFF6A1B9A)
-                )
-            )
-
-            OutlinedTextField(
-                value = estado.correo,
-                onValueChange = viewModel::onCorreoChange,
-                label = { Text("Correo") },
-                isError = estado.errores.correo != null,
-                supportingText = {
-                    estado.errores.correo?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    unfocusedBorderColor = Color(0xFFB0BEC5),
-                    focusedBorderColor = Color(0xFF6A1B9A),
-                    cursorColor = Color(0xFF6A1B9A),
-                    focusedLabelColor = Color(0xFF6A1B9A)
-                )
-            )
-
-            OutlinedTextField(
-                value = estado.clave,
-                onValueChange = viewModel::onClaveChange,
-                label = { Text("Clave") },
-                visualTransformation = PasswordVisualTransformation(),
-                isError = estado.errores.clave != null,
-                supportingText = {
-                    estado.errores.clave?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    unfocusedBorderColor = Color(0xFFB0BEC5),
-                    focusedBorderColor = Color(0xFF6A1B9A),
-                    cursorColor = Color(0xFF6A1B9A),
-                    focusedLabelColor = Color(0xFF6A1B9A)
-                )
-            )
-            OutlinedTextField(
-                value = estado.repClave,
-                onValueChange = viewModel::onRepClaveChange,
-                label = { Text("Repetir Clave") },
-                visualTransformation = PasswordVisualTransformation(),
-                isError = estado.errores.repClave != null,
-                supportingText = {
-                    estado.errores.repClave?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    unfocusedBorderColor = Color(0xFFB0BEC5),
-                    focusedBorderColor = Color(0xFF6A1B9A),
-                    cursorColor = Color(0xFF6A1B9A),
-                    focusedLabelColor = Color(0xFF6A1B9A)
-                )
-            )
-
-            OutlinedTextField(
-                value = estado.direccion,
-                onValueChange = viewModel::onDireccionChange,
-                label = { Text("Dirección") },
-                isError = estado.errores.direccion != null,
-                supportingText = {
-                    estado.errores.direccion?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    unfocusedBorderColor = Color(0xFFB0BEC5),
-                    focusedBorderColor = Color(0xFF6A1B9A),
-                    cursorColor = Color(0xFF6A1B9A),
-                    focusedLabelColor = Color(0xFF6A1B9A)
-                )
-            )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = estado.aceptaTerminos,
-                    onCheckedChange = viewModel::onAceptarTerminosChange
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Acepto los términos y condiciones")
-            }
-
-            Button(
-                onClick = {
-                    if (viewModel.validarFormulario()) {
-                        viewModel.guardarUsuario()
-                        navController.navigate("InicioCatalogoScreen")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Registrar")
-            }
-            Button(
-                onClick = {
-                    navController.navigate("LoginScreen")
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Volver al login")
-            }
+        OutlinedButton(
+            onClick = { navController.navigate("LoginScreen") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F))
+        ) {
+            Text("Volver al login")
         }
     }
+}
+
+@Composable
+fun Campo(
+    label: String,
+    valor: String,
+    onChange: (String) -> Unit,
+    esClave: Boolean = false,
+    error: String?
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onChange,
+        label = { Text(label) },
+        visualTransformation = if (esClave) PasswordVisualTransformation() else VisualTransformation.None,
+        isError = error != null,
+        supportingText = { error?.let { Text(it, color = Color.Red, fontSize = 12.sp) } },
+        modifier = Modifier.fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFFF4B4B4),
+            cursorColor = Color(0xFFB06F6F),
+            focusedLabelColor = Color(0xFFB06F6F)
+        )
+    )
 }

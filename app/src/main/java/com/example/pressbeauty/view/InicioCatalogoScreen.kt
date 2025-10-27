@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +37,7 @@ fun InicioCatalogoScreen(
     navController: NavController,
     productoViewModel: ProductoViewModel,
     usuarioViewModel: UsuarioViewModel,
-    carritoViewModel : CarritoViewModel
+    carritoViewModel: CarritoViewModel
 ) {
     val productos by productoViewModel.productos.collectAsState()
     val usuario by usuarioViewModel.estado.collectAsState()
@@ -46,42 +45,32 @@ fun InicioCatalogoScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        bottomBar = { NavInferior(navController) }
+        bottomBar = { NavInferior(navController) },
+        containerColor = Color(0xFFFFFDFD)
     ) { paddingValues ->
 
         if (isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(
-                    color = Color(0xFFFF4F7A),
-                    strokeWidth = 5.dp
-                )
+                CircularProgressIndicator(color = Color(0xFFE5A6A6), strokeWidth = 5.dp)
             }
         } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFFFFECDC), Color(0xFFFFFAF8))
-                        )
-                    )
+                    .background(Brush.verticalGradient(colors = listOf(Color(0xFFFFF5F3), Color.White)))
                     .padding(paddingValues)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
 
                 Text(
-                    text = "Bienvenida, ${usuario.nombre } ",
+                    text = "Bienvenida, ${usuario.nombre}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
-                    color = Color(0xFFFF4F7A),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                    color = Color(0xFFB06F6F),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     textAlign = TextAlign.Center
                 )
 
@@ -90,41 +79,35 @@ fun InicioCatalogoScreen(
                         Image(
                             painter = painterResource(id = R.drawable.banner_catalogo),
                             contentDescription = "Banner",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(16.dp)),
+                            modifier = Modifier.fillMaxWidth().height(180.dp)
+                                .clip(RoundedCornerShape(20.dp)),
                             contentScale = ContentScale.Crop
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 10.dp),
+                    modifier = Modifier.fillMaxSize().padding(bottom = 10.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(productos) { producto ->
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(250.dp)
+                            modifier = Modifier.fillMaxWidth().height(250.dp)
                                 .clickable {
                                     isLoading = true
                                     scope.launch {
-                                        delay(800)
+                                        delay(700)
                                         isLoading = false
                                         navController.navigate("productoScreen/${producto.idProducto}")
                                     }
                                 },
                             elevation = CardDefaults.cardElevation(4.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(18.dp)
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxSize(),
@@ -133,39 +116,35 @@ fun InicioCatalogoScreen(
                                 AsyncImage(
                                     model = producto.imagenUrl,
                                     contentDescription = producto.nombreProducto,
-                                    modifier = Modifier
-                                        .height(160.dp)
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                                    modifier = Modifier.height(150.dp).fillMaxWidth()
+                                        .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)),
                                     contentScale = ContentScale.Crop
                                 )
 
                                 Spacer(modifier = Modifier.height(6.dp))
-
                                 Text(
                                     text = producto.nombreProducto,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 15.sp,
                                     maxLines = 1,
-                                    color = Color(0xFF333333),
+                                    color = Color(0xFF3C3C3C),
                                     modifier = Modifier.padding(horizontal = 6.dp)
                                 )
 
                                 Text(
                                     text = "$${producto.precioProducto}",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF9A6A6A)
                                 )
 
-                                Spacer(modifier = Modifier.height(4.dp))
-
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Button(
-                                    onClick = { navController.navigate("ProductoScreen/${producto.idProducto}") } ,
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-
-
-                                    ) {
-                                    Text("Añadir al carrito", color = Color.White, fontSize = 16.sp)
+                                    onClick = { navController.navigate("ProductoScreen/${producto.idProducto}") },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Text("Añadir al carrito", color = Color.White, fontSize = 15.sp)
                                 }
                             }
                         }

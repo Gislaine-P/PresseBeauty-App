@@ -30,42 +30,41 @@ fun CarritoScreen(
 ) {
     val carrito by carritoViewModel.carrito.collectAsState()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
-        bottomBar = { NavInferior(navController) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = { NavInferior(navController) },
+        containerColor = Color(0xFFFDFBFA)
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFFFFECDC), Color(0xFFFFFAF8))
+                        colors = listOf(Color(0xFFFFF7F5), Color.White)
                     )
                 )
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
-
             Text(
-                text = "Carrito de Compras",
+                text = "Tu Carrito",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFFF4F7A),
+                color = Color(0xFFB06F6F),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(vertical = 12.dp)
             )
 
             AnimatedVisibility(visible = carrito.productos.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        "Tu carrito está vacío.",
+                        "Tu carrito está vacío",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            color = Color.Gray,
-                            fontSize = 18.sp
+                            color = Color(0xFFB9AFAF),
+                            fontSize = 17.sp
                         )
                     )
                 }
@@ -73,28 +72,26 @@ fun CarritoScreen(
 
             AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     items(carrito.productos) { detalle ->
                         Card(
-                            shape = RoundedCornerShape(16.dp),
-                            elevation = CardDefaults.cardElevation(6.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(20.dp),
+                            elevation = CardDefaults.cardElevation(4.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .padding(12.dp)
-                                    .fillMaxWidth(),
+                                modifier = Modifier.padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 AsyncImage(
                                     model = detalle.imagenUrl,
                                     contentDescription = detalle.nombreProducto,
                                     modifier = Modifier
-                                        .size(100.dp)
-                                        .clip(RoundedCornerShape(12.dp)),
+                                        .size(90.dp)
+                                        .clip(RoundedCornerShape(16.dp)),
                                     contentScale = ContentScale.Crop
                                 )
 
@@ -103,20 +100,20 @@ fun CarritoScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         detalle.nombreProducto,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 16.sp,
-                                        color = Color(0xFF333333)
+                                        color = Color(0xFF4B4B4B)
                                     )
                                     Text(
                                         "Precio: $${detalle.precioUnitario}",
-                                        color = Color(0xFF666666),
-                                        fontSize = 14.sp
+                                        color = Color(0xFF9C9C9C),
+                                        fontSize = 13.sp
                                     )
                                     Text(
                                         "Subtotal: $${detalle.subtotalCarrito}",
-                                        color = Color(0xFFFF4F7A),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                        color = Color(0xFFBF7C7C),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
                                     )
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -125,25 +122,25 @@ fun CarritoScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                                     ) {
-                                        Button(
+                                        OutlinedButton(
                                             onClick = { carritoViewModel.disminuirCantidad(detalle.idProducto) },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-                                            contentPadding = PaddingValues(0.dp),
-                                            modifier = Modifier.size(30.dp)
-                                        ) { Text("-", color = Color.White) }
+                                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F)),
+                                            modifier = Modifier.size(28.dp),
+                                            contentPadding = PaddingValues(0.dp)
+                                        ) { Text("-") }
 
                                         Text(
                                             detalle.cantidadProducto.toString(),
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = 18.sp
+                                            fontSize = 16.sp
                                         )
 
-                                        Button(
+                                        OutlinedButton(
                                             onClick = { carritoViewModel.aumentarCantidad(detalle.idProducto) },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
-                                            contentPadding = PaddingValues(0.dp),
-                                            modifier = Modifier.size(30.dp)
-                                        ) { Text("+", color = Color.White) }
+                                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F)),
+                                            modifier = Modifier.size(28.dp),
+                                            contentPadding = PaddingValues(0.dp)
+                                        ) { Text("+") }
                                     }
                                 }
                             }
@@ -154,36 +151,42 @@ fun CarritoScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White)
-                        .padding(16.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFFFFF4F2))
+                        .padding(20.dp)
                 ) {
                     Text(
                         text = "Total: $${carrito.total}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color(0xFFDA3B68)
+                        color = Color(0xFFB06F6F)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+
                     Button(
                         onClick = {
                             scope.launch {
-                                carritoViewModel.limpiarCarrito() // ✅ limpia memoria y DataStore
-                                navController.navigate("InicioCatalogoScreen") {
-                                    popUpTo("CarritoScreen") { inclusive = true }
+                                val exito = (0..100).random() < 70
+                                if (exito) {
+                                    carritoViewModel.limpiarCarrito()
+                                    snackbarHostState.showSnackbar("Compra realizada con éxito!!")
+                                    navController.navigate("InicioCatalogoScreen") {
+                                        popUpTo("CarritoScreen") { inclusive = true }
+                                    }
+                                } else {
+                                    snackbarHostState.showSnackbar("La compra no pudo completarse")
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4F7A)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp)
                     ) {
-                        Text("Finalizar compra", fontSize = 18.sp, color = Color.White)
+                        Text("Realizar compra", fontSize = 17.sp, color = Color.White)
                     }
                 }
             }
