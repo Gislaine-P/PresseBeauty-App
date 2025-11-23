@@ -1,5 +1,7 @@
 package com.example.pressbeauty.view
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,14 +16,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.pressbeauty.model.Nominatim
+import com.example.pressbeauty.remote.RetrofitInstance
 import com.example.pressbeauty.view.components.NavInferior
 import com.example.pressbeauty.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun CarritoScreen(
@@ -31,6 +39,7 @@ fun CarritoScreen(
     val carrito by carritoViewModel.carrito.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -124,7 +133,9 @@ fun CarritoScreen(
                                     ) {
                                         OutlinedButton(
                                             onClick = { carritoViewModel.disminuirCantidad(detalle.idProducto) },
-                                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F)),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                contentColor = Color(0xFFB06F6F)
+                                            ),
                                             modifier = Modifier.size(28.dp),
                                             contentPadding = PaddingValues(0.dp)
                                         ) { Text("-") }
@@ -137,7 +148,9 @@ fun CarritoScreen(
 
                                         OutlinedButton(
                                             onClick = { carritoViewModel.aumentarCantidad(detalle.idProducto) },
-                                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB06F6F)),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                contentColor = Color(0xFFB06F6F)
+                                            ),
                                             modifier = Modifier.size(28.dp),
                                             contentPadding = PaddingValues(0.dp)
                                         ) { Text("+") }
@@ -151,7 +164,8 @@ fun CarritoScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
+            //CODIGO ANTIGUO
+            /* AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -189,7 +203,109 @@ fun CarritoScreen(
                         Text("Realizar compra", fontSize = 17.sp, color = Color.White)
                     }
                 }
+            }*/
+
+            //FUNCIONALIDAD PARA BOTONES Y LLAMADO DE API
+            AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
+                //variables para guardar direccion y el tipo de entrega que se realzara
+                var direccion by remember { mutableStateOf("") }
+                var tipoEntrega by remember { mutableStateOf("") }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFFFFF4F2))
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "Total: $${carrito.total}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color(0xFFB06F6F)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    //texto para poner la direccion
+                    TextField(
+                        value = direccion,
+                        onValueChange = { direccion = it },
+                        label = { Text("Dirección") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    //boton para elegir si quiere a domicilio o retiro
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { tipoEntrega = "retiro" }, modifier = Modifier.weight(1f)) {
+                            Text("Retiro en tienda")
+                        }
+                        Button(onClick = { tipoEntrega = "domicilio" }, modifier = Modifier.weight(1f)) {
+                            Text("Envío a domicilio")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    //boton de compra con logica parcial
+                    Button(
+                        onClick = {
+                            scope.launch {
+
+                                //si el pone opcion retiro el carro automaticamente se limpia
+                                if (tipoEntrega == "retiro") {
+                                    snackbarHostState.showSnackbar("Compra con retiro en tienda")
+                                    carritoViewModel.limpiarCarrito()
+                                    navController.navigate("InicioCatalogoScreen") {
+                                        popUpTo("CarritoScreen") { inclusive = true }
+                                    }
+                                    //si pone a domicilio se llamara la API de Nominatim
+                                } else if (tipoEntrega == "domicilio" && direccion.isNotBlank()) {
+                                    // Aquí se llama a la API de Nominatim
+                                    val call = RetrofitInstance.api.searchLocation(direccion)
+                                    call.enqueue(object : Callback<List<Nominatim>> {
+                                        override fun onResponse(
+                                            call: Call<List<Nominatim>>,
+                                            response: Response<List<Nominatim>>
+                                        ) {
+                                            if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
+                                                val location = response.body()!![0]
+
+
+
+                                                //prueba temporal para mostrar resultado en Toast y validar que la API responde (ELIMINAR O COMENTAR SI SE NECESITA)
+                                                val mensaje = "Dirección encontrada: ${location.display_name}\nLat: ${location.lat}, Lon: ${location.lon}"
+                                                Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
+
+
+                                            //aca se debe continuar la logica real (limpiar carro, navegar, guardar lat/lon)
+
+
+                                            } else {
+                                                //Si no selecciona retiro o a domicilio / si no escribe direccion
+                                                Toast.makeText(context, "No se encontró la dirección", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+
+                                        override fun onFailure(call: Call<List<Nominatim>>, t: Throwable) {
+                                            Toast.makeText(context, "Error al conectar con Nominatim", Toast.LENGTH_SHORT).show()
+                                        }
+                                    })
+                                } else {
+                                    snackbarHostState.showSnackbar("Selecciona tipo de entrega y escribe la dirección")
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text("Realizar compra", fontSize = 17.sp, color = Color.White)
+                    }
+                }
             }
+
         }
     }
 }
