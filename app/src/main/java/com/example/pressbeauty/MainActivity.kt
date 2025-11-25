@@ -88,7 +88,8 @@ class MainActivity : ComponentActivity() {
                     InicioCatalogoScreen(productoViewModel = productoViewModel,
                                             usuarioViewModel = usuarioViewModel,
                                             navController = navController,
-                                            carritoViewModel = carritoViewModel)
+
+                                              carritoViewModel = carritoViewModel)
                 }
                 composable("productoScreen/{idProducto}"){ backStackEntry ->
                     val id = backStackEntry.arguments?.getString("idProducto")

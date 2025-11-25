@@ -41,6 +41,36 @@ fun CarritoScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    // estado para mostrar la pantalla de direccion de domicilio
+    var mostrarSeleccionDireccion by remember { mutableStateOf(false) }
+
+    //forzar seleccion de tipo de entrega
+    if (carrito.tipoEntrega == null){
+        LaunchedEffect(Unit) {mostrarSeleccionDireccion = true }
+    }
+
+    // para mostrar pantalla seleccion de direccion cuando sea necesario:
+    if (mostrarSeleccionDireccion){
+        SeleccionDireccionScreen(
+            onDireccionSeleccionada = { direccion ->
+                if (direccion.tipoEntrega == TipoEntrega.DOMICILIO) {
+                    carritoViewModel.setDireccionEntrega(direccion)
+                } else {
+                    carritoViewModel.setTipoEntrega(TipoEntrega.RETIRO_LOCAL)
+                }
+                mostrarSeleccionDireccion = false
+            },
+            onCancelar = {
+                if (carrito.tipoEntrega != null) {
+                    mostrarSeleccionDireccion = false
+                }
+            },
+            carritoViewModel = carritoViewModel
+        )
+        return
+    }
+
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = { NavInferior(navController) },
@@ -205,8 +235,12 @@ fun CarritoScreen(
                 }
             }*/
 
+
+
             //FUNCIONALIDAD PARA BOTONES Y LLAMADO DE API
+
             AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
+
                 //variables para guardar direccion y el tipo de entrega que se realzara
                 var direccion by remember { mutableStateOf("") }
                 var tipoEntrega by remember { mutableStateOf("") }
@@ -218,82 +252,134 @@ fun CarritoScreen(
                         .background(Color(0xFFFFF4F2))
                         .padding(20.dp)
                 ) {
+                    // Información de entrega actual
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8E8E8))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Método de entrega:",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color(0xFFB06F6F)
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            when (carrito.tipoEntrega) {
+                                TipoEntrega.RETIRO_LOCAL -> {
+                                    Text(
+                                        "Retiro en local",
+                                        fontSize = 14.sp,
+                                        color = Color(0xFF4B4B4B)
+                                    )
+                                    Text(
+                                        "Puedes retirar tu pedido en nuestro local",
+                                        fontSize = 12.sp,
+                                        color = Color(0xFF9C9C9C)
+                                    )
+                                }
+                                TipoEntrega.DOMICILIO -> {
+                                    carrito.direccionEntrega?.let { direccion ->
+                                        Text(
+                                            "Envío a domicilio",
+                                            fontSize = 14.sp,
+                                            color = Color(0xFF4B4B4B)
+                                        )
+                                        Text(
+                                            direccion.displayName,
+                                            fontSize = 12.sp,
+                                            color = Color(0xFF9C9C9C)
+                                        )
+                                    } ?: run {
+                                        Text(
+                                            "Envío a domicilio - Dirección no seleccionada",
+                                            fontSize = 14.sp,
+                                            color = Color(0xFFBF7C7C)
+                                        )
+                                    }
+                                }
+                                null -> {
+                                    Text(
+                                        "No se ha seleccionado un método de entrega",
+                                        fontSize = 14.sp,
+                                        color = Color(0xFFBF7C7C)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Button(
+                                onClick = { mostrarSeleccionDireccion = true },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFE8D0D0)
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    contentDescription = "Ubicación",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Cambiar método de entrega", fontSize = 14.sp)
+                            }
+                        }
+                    }
+
                     Text(
                         text = "Total: $${carrito.total}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = Color(0xFFB06F6F)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
 
-                    //texto para poner la direccion
-                    TextField(
-                        value = direccion,
-                        onValueChange = { direccion = it },
-                        label = { Text("Dirección") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    //boton para elegir si quiere a domicilio o retiro
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { tipoEntrega = "retiro" }, modifier = Modifier.weight(1f)) {
-                            Text("Retiro en tienda")
-                        }
-                        Button(onClick = { tipoEntrega = "domicilio" }, modifier = Modifier.weight(1f)) {
-                            Text("Envío a domicilio")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    //boton de compra con logica parcial
+                    //boton de compra
                     Button(
                         onClick = {
                             scope.launch {
-
-                                //si el pone opcion retiro el carro automaticamente se limpia
-                                if (tipoEntrega == "retiro") {
-                                    snackbarHostState.showSnackbar("Compra con retiro en tienda")
-                                    carritoViewModel.limpiarCarrito()
-                                    navController.navigate("InicioCatalogoScreen") {
-                                        popUpTo("CarritoScreen") { inclusive = true }
-                                    }
-                                    //si pone a domicilio se llamara la API de Nominatim
-                                } else if (tipoEntrega == "domicilio" && direccion.isNotBlank()) {
-                                    // Aquí se llama a la API de Nominatim
-                                    val call = RetrofitInstance.api.searchLocation(direccion)
-                                    call.enqueue(object : Callback<List<Nominatim>> {
-                                        override fun onResponse(
-                                            call: Call<List<Nominatim>>,
-                                            response: Response<List<Nominatim>>
-                                        ) {
-                                            if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
-                                                val location = response.body()!![0]
-
-
-
-                                                //prueba temporal para mostrar resultado en Toast y validar que la API responde (ELIMINAR O COMENTAR SI SE NECESITA)
-                                                val mensaje = "Dirección encontrada: ${location.display_name}\nLat: ${location.lat}, Lon: ${location.lon}"
-                                                Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
-
-
-                                            //aca se debe continuar la logica real (limpiar carro, navegar, guardar lat/lon)
-
-
-                                            } else {
-                                                //Si no selecciona retiro o a domicilio / si no escribe direccion
-                                                Toast.makeText(context, "No se encontró la dirección", Toast.LENGTH_SHORT).show()
+                                when (carrito.tipoEntrega) {
+                                    TipoEntrega.RETIRO_LOCAL -> {
+                                        // Lógica para retiro local
+                                        val exito = (0..100).random() < 70
+                                        if (exito) {
+                                            carritoViewModel.limpiarCarrito()
+                                            snackbarHostState.showSnackbar("Compra con retiro en local realizada con éxito!!")
+                                            navController.navigate("InicioCatalogoScreen") {
+                                                popUpTo("CarritoScreen") { inclusive = true }
                                             }
+                                        } else {
+                                            snackbarHostState.showSnackbar("La compra no pudo completarse")
                                         }
-
-                                        override fun onFailure(call: Call<List<Nominatim>>, t: Throwable) {
-                                            Toast.makeText(context, "Error al conectar con Nominatim", Toast.LENGTH_SHORT).show()
+                                    }
+                                    TipoEntrega.DOMICILIO -> {
+                                        if (carrito.direccionEntrega != null) {
+                                            // Lógica para envío a domicilio
+                                            val exito = (0..100).random() < 70
+                                            if (exito) {
+                                                carritoViewModel.limpiarCarrito()
+                                                snackbarHostState.showSnackbar("Compra con envío a domicilio realizada con éxito!!")
+                                                navController.navigate("InicioCatalogoScreen") {
+                                                    popUpTo("CarritoScreen") { inclusive = true }
+                                                }
+                                            } else {
+                                                snackbarHostState.showSnackbar("La compra no pudo completarse")
+                                            }
+                                        } else {
+                                            snackbarHostState.showSnackbar("Por favor selecciona una dirección para el envío a domicilio")
                                         }
-                                    })
-                                } else {
-                                    snackbarHostState.showSnackbar("Selecciona tipo de entrega y escribe la dirección")
+                                    }
+                                    null -> {
+                                        snackbarHostState.showSnackbar("Por favor selecciona un método de entrega")
+                                    }
                                 }
                             }
                         },
@@ -303,7 +389,6 @@ fun CarritoScreen(
                     ) {
                         Text("Realizar compra", fontSize = 17.sp, color = Color.White)
                     }
-                }
             }
 
         }

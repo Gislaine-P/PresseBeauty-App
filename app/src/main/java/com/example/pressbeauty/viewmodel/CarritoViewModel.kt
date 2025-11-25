@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pressbeauty.datastore.CarritoDataStore
-import com.example.pressbeauty.model.CarritoUI
-import com.example.pressbeauty.model.DetalleCarritoUI
-import com.example.pressbeauty.model.ProductoUI
+import com.example.pressbeauty.model.*
+import com.example.pressbeauty.remote.NominatimApiService
+import com.example.pressbeauty.remote.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -17,13 +17,17 @@ import java.util.UUID
 class CarritoViewModel(application: Application): AndroidViewModel(application) {
 
     private val dataStore = CarritoDataStore(application)
+    //
+    private val nominatimApi = RetrofitInstance.nominatimApiService
 
     private val _carrito = MutableStateFlow(
         CarritoUI(
             idCarrito = UUID.randomUUID().toString(),
             idUsuario = "1",
             productos = emptyList(),
-            total = 0
+            total = 0,
+            direccionEntrega = null,
+            tipoEntrega = null
         )
     )
     val carrito: StateFlow<CarritoUI> = _carrito
@@ -143,6 +147,39 @@ class CarritoViewModel(application: Application): AndroidViewModel(application) 
     fun limpiarCarrito() {
         _carrito.value = _carrito.value.copy(productos = emptyList(), total = 0)
         vaciarCarro()
+    }
+
+    //
+    //CONSUMO DE API PARA LA DIRECCION DE DOMICILIO
+    //
+
+    fun setDireccionEntrega(direccion: DireccionEntrega) {
+        _carrito.update {
+            it.copy(
+                direccionEntrega = direccion,
+                tipoEntrega = TipoEntrega.DOMICILIO
+            )
+        }
+        guardarEstado()
+    }
+
+    fun setTipoEntrega(tipo: TipoEntrega) {
+        _carrito.update {
+            it.copy(
+                tipoEntrega = tipo,
+                direccionEntrega = if (tipo == TipoEntrega.RETIRO_LOCAL) null else it.direccionEntrega
+            )
+        }
+        guardarEstado()
+    }
+
+    fun quitarDireccionEntrega() {
+        _carrito.update {
+            it.copy(
+                direccionEntrega = null
+            )
+        }
+        guardarEstado()
     }
 
 }

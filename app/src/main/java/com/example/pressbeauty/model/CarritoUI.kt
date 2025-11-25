@@ -4,5 +4,7 @@ data class CarritoUI(
     val idCarrito : String,
     val idUsuario : String,
     val productos: List<DetalleCarritoUI>,
-    val total : Int
+    val total : Int,
+    val direccionEntrega: DireccionEntrega,
+    val tipoEntrega: TipoEntrega
 )
