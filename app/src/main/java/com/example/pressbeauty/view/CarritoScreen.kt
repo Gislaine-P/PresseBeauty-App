@@ -1,13 +1,14 @@
 package com.example.pressbeauty.view
 
-import android.util.Log
-import android.widget.Toast
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,9 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.pressbeauty.model.Nominatim
+import com.example.pressbeauty.model.TipoEntrega
 import com.example.pressbeauty.remote.RetrofitInstance
 import com.example.pressbeauty.view.components.NavInferior
+import com.example.pressbeauty.view.components.SeleccionDireccionScreen
 import com.example.pressbeauty.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -50,13 +52,14 @@ fun CarritoScreen(
     }
 
     // para mostrar pantalla seleccion de direccion cuando sea necesario:
-    if (mostrarSeleccionDireccion){
+    if (mostrarSeleccionDireccion) {
         SeleccionDireccionScreen(
             onDireccionSeleccionada = { direccion ->
-                if (direccion.tipoEntrega == TipoEntrega.DOMICILIO) {
-                    carritoViewModel.setDireccionEntrega(direccion)
-                } else {
+                // para determinar si es retiro local o envio a domicilio
+                if (direccion.displayName.contains("Retiro en local")) {
                     carritoViewModel.setTipoEntrega(TipoEntrega.RETIRO_LOCAL)
+                } else {
+                    carritoViewModel.setDireccionEntrega(direccion)
                 }
                 mostrarSeleccionDireccion = false
             },
@@ -69,6 +72,7 @@ fun CarritoScreen(
         )
         return
     }
+
 
 
     Scaffold(
@@ -241,7 +245,7 @@ fun CarritoScreen(
 
             AnimatedVisibility(visible = carrito.productos.isNotEmpty()) {
 
-                //variables para guardar direccion y el tipo de entrega que se realzara
+                //variables para guardar direccion y el tipo de entrega
                 var direccion by remember { mutableStateOf("") }
                 var tipoEntrega by remember { mutableStateOf("") }
 
@@ -252,7 +256,7 @@ fun CarritoScreen(
                         .background(Color(0xFFFFF4F2))
                         .padding(20.dp)
                 ) {
-                    // Información de entrega actual
+                    // info tipo de entrega actual
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -352,7 +356,7 @@ fun CarritoScreen(
                                         val exito = (0..100).random() < 70
                                         if (exito) {
                                             carritoViewModel.limpiarCarrito()
-                                            snackbarHostState.showSnackbar("Compra con retiro en local realizada con éxito!!")
+                                            snackbarHostState.showSnackbar("¡Compra con retiro en local realizada con éxito!")
                                             navController.navigate("InicioCatalogoScreen") {
                                                 popUpTo("CarritoScreen") { inclusive = true }
                                             }
@@ -362,11 +366,13 @@ fun CarritoScreen(
                                     }
                                     TipoEntrega.DOMICILIO -> {
                                         if (carrito.direccionEntrega != null) {
-                                            // Lógica para envío a domicilio
+                                            //
+                                            // LOGICA ENVIO A DOMICILIO
+                                            //
                                             val exito = (0..100).random() < 70
                                             if (exito) {
                                                 carritoViewModel.limpiarCarrito()
-                                                snackbarHostState.showSnackbar("Compra con envío a domicilio realizada con éxito!!")
+                                                snackbarHostState.showSnackbar("¡Compra con envío a domicilio realizada con éxito!")
                                                 navController.navigate("InicioCatalogoScreen") {
                                                     popUpTo("CarritoScreen") { inclusive = true }
                                                 }
@@ -393,4 +399,4 @@ fun CarritoScreen(
 
         }
     }
-}
+}}

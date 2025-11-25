@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pressbeauty.datastore.CarritoDataStore
 import com.example.pressbeauty.model.*
-import com.example.pressbeauty.remote.NominatimApiService
 import com.example.pressbeauty.remote.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,12 +12,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class CarritoViewModel(application: Application): AndroidViewModel(application) {
 
     private val dataStore = CarritoDataStore(application)
     //
-    private val nominatimApi = RetrofitInstance.nominatimApiService
+    private val nominatimApi = RetrofitInstance.api
 
     private val _carrito = MutableStateFlow(
         CarritoUI(
@@ -32,6 +34,14 @@ class CarritoViewModel(application: Application): AndroidViewModel(application) 
     )
     val carrito: StateFlow<CarritoUI> = _carrito
 
+    private val _direccionesEncontradas = MutableStateFlow<List<DireccionEntrega>>(emptyList())
+    val direccionesEncontradas: StateFlow<List<DireccionEntrega>> = _direccionesEncontradas
+
+    private val _cargandoDireccion = MutableStateFlow(false)
+    val cargandoDireccion: StateFlow<Boolean> = _cargandoDireccion
+
+    private val _errorDireccion = MutableStateFlow<String?>(null)
+    val errorDireccion: StateFlow<String?> = _errorDireccion
 
     init {
         viewModelScope.launch {
@@ -149,6 +159,9 @@ class CarritoViewModel(application: Application): AndroidViewModel(application) 
         vaciarCarro()
     }
 
+
+
+
     //
     //CONSUMO DE API PARA LA DIRECCION DE DOMICILIO
     //
@@ -182,4 +195,43 @@ class CarritoViewModel(application: Application): AndroidViewModel(application) 
         guardarEstado()
     }
 
+    fun buscarDirecciones(query: String) {
+        if (query.length < 3) {
+            _direccionesEncontradas.value = emptyList()
+            return
+        }
+
+        _cargandoDireccion.value = true
+        _errorDireccion.value = null
+
+        nominatimApi.searchLocation(query).enqueue(object : Callback<List<Nominatim>> {
+            override fun onResponse(call: Call<List<Nominatim>>, response: Response<List<Nominatim>>) {
+                _cargandoDireccion.value = false
+
+                if (response.isSuccessful) {
+                    val direcciones = response.body()?.map { nominatim ->
+                        DireccionEntrega(
+                            displayName = nominatim.display_name,
+                            lat = nominatim.lat.toDoubleOrNull() ?: 0.0,
+                            lon = nominatim.lon.toDoubleOrNull() ?: 0.0
+                        )
+                    } ?: emptyList()
+
+                    _direccionesEncontradas.value = direcciones
+                } else {
+                    _errorDireccion.value = "Error al buscar direcciones: ${response.code()}"
+                }
+            }
+
+            override fun onFailure(call: Call<List<Nominatim>>, t: Throwable) {
+                _cargandoDireccion.value = false
+                _errorDireccion.value = "Error de conexión: ${t.message}"
+            }
+        })
+    }
+
+    fun limpiarBusquedaDirecciones() {
+        _direccionesEncontradas.value = emptyList()
+        _errorDireccion.value = null
+    }
 }
