@@ -196,36 +196,61 @@ class CarritoViewModel(application: Application): AndroidViewModel(application) 
     }
 
     fun buscarDirecciones(query: String) {
+
         if (query.length < 3) {
             _direccionesEncontradas.value = emptyList()
+            _errorDireccion.value = null
             return
         }
 
         _cargandoDireccion.value = true
         _errorDireccion.value = null
+        _direccionesEncontradas.value = emptyList()
 
         nominatimApi.searchLocation(query).enqueue(object : Callback<List<Nominatim>> {
+
             override fun onResponse(call: Call<List<Nominatim>>, response: Response<List<Nominatim>>) {
+
                 _cargandoDireccion.value = false
 
                 if (response.isSuccessful) {
-                    val direcciones = response.body()?.map { nominatim ->
-                        DireccionEntrega(
-                            displayName = nominatim.display_name,
-                            lat = nominatim.lat.toDoubleOrNull() ?: 0.0,
-                            lon = nominatim.lon.toDoubleOrNull() ?: 0.0
-                        )
-                    } ?: emptyList()
-
-                    _direccionesEncontradas.value = direcciones
+                    response.body()?.let { nominatimList ->
+                        if (nominatimList.isNotEmpty()) {
+                            val direcciones = nominatimList.map { nominatim ->
+                                DireccionEntrega(
+                                    displayName = nominatim.display_name,
+                                    lat = nominatim.lat.toDoubleOrNull() ?: 0.0,
+                                    lon = nominatim.lon.toDoubleOrNull() ?: 0.0
+                                )
+                            }
+                            _direccionesEncontradas.value = direcciones
+                            _errorDireccion.value = null
+                        } else {
+                            _direccionesEncontradas.value = emptyList()
+                            _errorDireccion.value = "No se encontraron direcciones para '$query'"
+                        }
+                    } ?: run {
+                        _errorDireccion.value = "Respuesta vacía de la API"
+                    }
                 } else {
-                    _errorDireccion.value = "Error al buscar direcciones: ${response.code()}"
+                    _errorDireccion.value = when (response.code()) {
+                        400 -> "Solicitud incorrecta"
+                        403 -> "Acceso denegado"
+                        404 -> "Servicio no encontrado"
+                        500 -> "Error interno del servidor"
+                        503 -> "Servicio no disponible"
+                        else -> "Error del servidor: ${response.code()}"
+                    }
                 }
             }
 
             override fun onFailure(call: Call<List<Nominatim>>, t: Throwable) {
                 _cargandoDireccion.value = false
-                _errorDireccion.value = "Error de conexión: ${t.message}"
+                _errorDireccion.value = when {
+                    t is java.net.UnknownHostException -> "Sin conexión a internet"
+                    t is java.net.SocketTimeoutException -> "Tiempo de espera agotado"
+                    else -> "Error de conexión: ${t.message}"
+                }
             }
         })
     }

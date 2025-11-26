@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -275,43 +279,88 @@ fun CarritoScreen(
 
                             when (carrito.tipoEntrega) {
                                 TipoEntrega.RETIRO_LOCAL -> {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            Icons.Default.CheckCircle,
+                                            contentDescription = "Confirmado",
+                                            tint = Color(0xFF4CAF50),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            "Retiro en local - CONFIRMADO",
+                                            fontSize = 14.sp,
+                                            color = Color(0xFF4B4B4B),
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
                                     Text(
-                                        "Retiro en local",
-                                        fontSize = 14.sp,
-                                        color = Color(0xFF4B4B4B)
-                                    )
-                                    Text(
-                                        "Puedes retirar tu pedido en nuestro local",
+                                        "Puedes retirar tu pedido en: Av. Calle 123, Viña del Mar",
                                         fontSize = 12.sp,
                                         color = Color(0xFF9C9C9C)
                                     )
                                 }
                                 TipoEntrega.DOMICILIO -> {
                                     carrito.direccionEntrega?.let { direccion ->
-                                        Text(
-                                            "Envío a domicilio",
-                                            fontSize = 14.sp,
-                                            color = Color(0xFF4B4B4B)
-                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                Icons.Default.CheckCircle,
+                                                contentDescription = "Confirmado",
+                                                tint = Color(0xFF4CAF50),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                "Envío a domicilio - CONFIRMADO",
+                                                fontSize = 14.sp,
+                                                color = Color(0xFF4B4B4B),
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
                                         Text(
                                             direccion.displayName,
                                             fontSize = 12.sp,
-                                            color = Color(0xFF9C9C9C)
+                                            color = Color(0xFF9C9C9C),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            "Coordenadas: ${"%.4f".format(direccion.lat)}, ${"%.4f".format(direccion.lon)}",
+                                            fontSize = 10.sp,
+                                            color = Color(0xFFBF7C7C)
                                         )
                                     } ?: run {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                Icons.Default.Warning,
+                                                contentDescription = "Pendiente",
+                                                tint = Color(0xFFFF9800),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                "Envío a domicilio - DIRECCIÓN PENDIENTE",
+                                                fontSize = 14.sp,
+                                                color = Color(0xFFBF7C7C)
+                                            )
+                                        }
+                                    }
+                                }
+                                null -> {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            Icons.Default.Info,
+                                            contentDescription = "Información",
+                                            tint = Color(0xFF2196F3),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            "Envío a domicilio - Dirección no seleccionada",
+                                            "Selecciona un método de entrega para continuar",
                                             fontSize = 14.sp,
                                             color = Color(0xFFBF7C7C)
                                         )
                                     }
-                                }
-                                null -> {
-                                    Text(
-                                        "No se ha seleccionado un método de entrega",
-                                        fontSize = 14.sp,
-                                        color = Color(0xFFBF7C7C)
-                                    )
                                 }
                             }
 

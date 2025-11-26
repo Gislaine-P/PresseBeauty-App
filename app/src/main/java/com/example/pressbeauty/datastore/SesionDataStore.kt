@@ -23,7 +23,7 @@ class SesionDataStore(private val context: Context) {
             preferencias[SESION_ACTIVA] = valor
         }
     }
-    suspend fun guardarDatosUsuario(nombre: String, correo: String, direccion: String {
+    suspend fun guardarDatosUsuario(nombre: String, correo: String, direccion: String) {
         context.dataStore.edit { preferencias ->
             preferencias[NOMBRE_USUARIO] = nombre
             preferencias[CORREO_USUARIO] = correo

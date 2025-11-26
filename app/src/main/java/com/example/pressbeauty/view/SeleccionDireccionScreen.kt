@@ -4,13 +4,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.pressbeauty.model.DireccionEntrega
 import com.example.pressbeauty.model.TipoEntrega
@@ -28,6 +32,14 @@ fun SeleccionDireccionScreen(
     val cargando by carritoViewModel.cargandoDireccion.collectAsState()
     val error by carritoViewModel.errorDireccion.collectAsState()
     val context = LocalContext.current
+
+    // limpiar busqueda cuando cambia el tipo de entrega
+    LaunchedEffect(tipoEntregaSeleccionado) {
+        if (tipoEntregaSeleccionado == TipoEntrega.RETIRO_LOCAL) {
+            busqueda = ""
+            carritoViewModel.limpiarBusquedaDirecciones()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -114,18 +126,31 @@ fun SeleccionDireccionScreen(
             // estados carga y error
             when {
                 cargando -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Buscando direcciones...")
+                    }
                 }
                 error != null -> {
-                    Text(
-                        text = error!!,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = error!!,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
                 direccionesEncontradas.isNotEmpty() -> {
+
                     Text(
-                        text = "Selecciona una dirección:",
+                        text = "${direccionesEncontradas.size} dirección(es) encontrada(s):",
                         style = MaterialTheme.typography.bodyMedium
                     )
 
@@ -141,7 +166,9 @@ fun SeleccionDireccionScreen(
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(4.dp)
+                                    .padding(4.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface)
                             ) {
                                 Row(
                                     modifier = Modifier.padding(16.dp),
@@ -150,22 +177,42 @@ fun SeleccionDireccionScreen(
                                     Icon(
                                         Icons.Default.LocationOn,
                                         contentDescription = "Dirección",
-                                        modifier = Modifier.padding(end = 8.dp)
+                                        modifier = Modifier.padding(end = 12.dp),
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
-                                    Text(
-                                        text = direccion.displayName,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = direccion.displayName,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = "Coordenadas: ${"%.4f".format(direccion.lat)}, ${"%.4f".format(direccion.lon)}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 busqueda.length >= 3 -> {
-                    Text(
-                        text = "No se encontraron direcciones",
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        Icon(
+                            Icons.Default.SearchOff,
+                            contentDescription = "No encontrado",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "No se encontraron direcciones para:\n\"$busqueda\"",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         } else if (tipoEntregaSeleccionado == TipoEntrega.RETIRO_LOCAL) {
