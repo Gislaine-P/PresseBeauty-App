@@ -42,13 +42,18 @@ android {
 }
 
 dependencies {
-    //retrofit y gson
+
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 
-    //corrutinas para trabajo asincrono
+
+
+
 
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
@@ -64,6 +69,13 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
     implementation("androidx.navigation:navigation-compose:2.8.3")
+
+    androidTestImplementation("org.mockito:mockito-android:5.7.0")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.7")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.7")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
