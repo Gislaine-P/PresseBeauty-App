@@ -15,30 +15,25 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.pressbeauty.viewmodel.LoginViewModel
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    loginViewModel: LoginViewModel,
     usuarioViewModel: UsuarioViewModel
 ) {
-    val estado2 by loginViewModel.estado2.collectAsState()
+    var username by remember { mutableStateOf("") }
+    var clave by remember { mutableStateOf("") }
     var mostrarAlerta by remember { mutableStateOf(false) }
     var mensajeAlerta by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        loginViewModel.onNombreChange("")
-        loginViewModel.onClaveChange("")
-    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFFFFF6F5), Color.White))
+                    listOf(Color(0xFFFFF6F5), Color.White)
+                )
             )
             .padding(24.dp),
         contentAlignment = Alignment.Center
@@ -51,9 +46,9 @@ fun LoginScreen(
             Text("Iniciar Sesión", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(0xFFB06F6F))
 
             OutlinedTextField(
-                value = estado2.nombre,
-                onValueChange = loginViewModel::onNombreChange,
-                label = { Text("Nombre de Usuario") },
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFFF4B4B4),
@@ -63,8 +58,8 @@ fun LoginScreen(
             )
 
             OutlinedTextField(
-                value = estado2.clave,
-                onValueChange = loginViewModel::onClaveChange,
+                value = clave,
+                onValueChange = { clave = it },
                 label = { Text("Contraseña") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
@@ -77,20 +72,18 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    if (loginViewModel.validarFormulario()) {
-                        usuarioViewModel.iniciarSesion(
-                            nombre = estado2.nombre,
-                            clave = estado2.clave
-                        ) { exito ->
-                            if (exito) navController.navigate("PerfilUsuarioScreen")
-                            else {
+                    if (username.isBlank() || clave.isBlank()) {
+                        mensajeAlerta = "Completa todos los campos."
+                        mostrarAlerta = true
+                    } else {
+                        usuarioViewModel.iniciarSesion(username, clave) { exito ->
+                            if (exito) {
+                                navController.navigate("InicioCatalogoScreen")
+                            } else {
                                 mensajeAlerta = "Usuario o contraseña incorrectos."
                                 mostrarAlerta = true
                             }
                         }
-                    } else {
-                        mensajeAlerta = "Completa todos los campos antes de iniciar sesión."
-                        mostrarAlerta = true
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),

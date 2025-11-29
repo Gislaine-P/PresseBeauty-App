@@ -6,6 +6,7 @@ import com.example.pressbeauty.view.UsuarioErrores
 data class UsuarioUI(
     val idUsuario : String,
     val imagenUri : Uri? = null,
+    val username : String="",
     val nombre : String = "",
     val apellido : String = "",
     val correo : String = "",

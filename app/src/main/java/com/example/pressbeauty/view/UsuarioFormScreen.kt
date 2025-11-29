@@ -45,6 +45,7 @@ fun UsuarioFormScreen(
 
         Campo(label = "Nombre", valor = estado.nombre, onChange = viewModel::onNombreChange, error = estado.errores.nombre)
         Campo(label = "Apellido", valor = estado.apellido, onChange = viewModel::onApellidoChange, error = estado.errores.apellido)
+        Campo(label = "Username",valor=estado.username, onChange =viewModel::onUsernameChange ,error = estado.errores.username )
         Campo(label = "Correo", valor = estado.correo, onChange = viewModel::onCorreoChange, error = estado.errores.correo)
         Campo(label = "Clave", valor = estado.clave, onChange = viewModel::onClaveChange, esClave = true, error = estado.errores.clave)
         Campo(label = "Repetir Clave", valor = estado.repClave, onChange = viewModel::onRepClaveChange, esClave = true, error = estado.errores.repClave)

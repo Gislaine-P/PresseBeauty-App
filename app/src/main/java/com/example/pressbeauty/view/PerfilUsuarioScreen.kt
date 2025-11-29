@@ -161,7 +161,7 @@ fun PerfilUsuarioScreen(
 
             Button(
                 onClick = {
-                    usuarioViewModel.limpiarDatos()
+                    usuarioViewModel.cerrarSesion()
                     navController.navigate("LoginScreen") { popUpTo(0) }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4B4B4)),

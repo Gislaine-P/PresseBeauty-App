@@ -7,15 +7,23 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-interface UsuarioDao{
+interface UsuarioDao {
+
     @Query("SELECT * FROM usuarios ORDER BY id DESC")
     suspend fun obtenerUsuarios(): List<Usuariobase>
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(usuario: Usuariobase)
 
     @Delete
     suspend fun eliminar(usuario: Usuariobase)
 
-    @Query("SELECT * FROM usuarios WHERE nombre = :nombre AND clave = :clave LIMIT 1")
-    suspend fun obtenerUsuarioPorCredenciales(nombre: String, clave: String): Usuariobase?
+    @Query("SELECT * FROM usuarios WHERE username = :username AND clave = :clave LIMIT 1")
+    suspend fun obtenerUsuarioPorCredenciales(username: String, clave: String): Usuariobase?
+
+    @Query("DELETE FROM usuarios")
+    suspend fun clear()
+
+    @Query("SELECT * FROM usuarios LIMIT 1")
+    suspend fun getUser(): Usuariobase?
 }
