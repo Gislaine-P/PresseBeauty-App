@@ -12,9 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.pressbeauty.model.BaseCompra
 import com.example.pressbeauty.model.Baseusuario
-import com.example.pressbeauty.repository.CompraRepository
 import com.example.pressbeauty.repository.SesionDataStore
 import com.example.pressbeauty.repository.UsuarioRepositorio
 import com.example.pressbeauty.view.*
@@ -33,7 +31,6 @@ class MainActivity : ComponentActivity() {
             val sesionDataStore = remember { SesionDataStore(context) }
 
             val db = remember { Baseusuario.getDatabase(context) }
-            val dbc = remember { BaseCompra.getDatabase(context) }
 
             val usuarioRepositorio = remember { UsuarioRepositorio(db.usuarioDao()) }
             val usuarioViewModel = remember { UsuarioViewModel(usuarioRepositorio, sesionDataStore) }
@@ -42,8 +39,6 @@ class MainActivity : ComponentActivity() {
             val carritoViewModel: CarritoViewModel = viewModel()
             val imagenPerfilViewModel: ImagenPerfilViewModel = viewModel()
 
-            val compraRepositorio = remember { CompraRepository(dbc.compraDao()) }
-            val compraViewModel = remember { CompraViewModel(compraRepositorio) }
 
             val estaLogueado = remember { mutableStateOf(false) }
 
