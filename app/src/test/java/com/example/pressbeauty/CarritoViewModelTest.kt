@@ -3,11 +3,19 @@ package com.example.pressbeauty
 import com.example.pressbeauty.model.DetalleCarritoUI
 import com.example.pressbeauty.model.ProductoUI
 import com.example.pressbeauty.viewmodel.CarritoViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.After
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CarritoViewModelTest {
+
+    private val testDispatcher = StandardTestDispatcher()
 
     @Test
     fun testAgregarProducto() = runTest {
@@ -53,6 +61,17 @@ class CarritoViewModelTest {
         assertTrue(carrito.productos.isEmpty())
         assertEquals(0, carrito.total)
     }
+
+    @Before
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
 
     @Test
     fun testDisminuirCantidadA1EliminaProducto() = runTest {
