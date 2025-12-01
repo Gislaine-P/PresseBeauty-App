@@ -1,6 +1,6 @@
 package com.example.pressbeauty
 
-import com.example.pressbeauty.model.Userbackend2
+import  com.example.pressbeauty.model.Userbackend2
 import com.example.pressbeauty.model.Usuariobase
 import com.example.pressbeauty.network.UserApi
 import com.example.pressbeauty.repository.SesionDataStore
