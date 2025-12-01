@@ -1,6 +1,6 @@
 package com.example.pressbeauty
 
-import  com.example.pressbeauty.model.Userbackend2
+import com.example.pressbeauty.model.Userbackend2
 import com.example.pressbeauty.model.Usuariobase
 import com.example.pressbeauty.network.UserApi
 import com.example.pressbeauty.repository.SesionDataStore
@@ -8,6 +8,7 @@ import com.example.pressbeauty.repository.UsuarioRepositorio
 import com.example.pressbeauty.viewmodel.UsuarioViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -34,7 +35,10 @@ class UsuarioViewModelTest {
         repo = mock()
         dataStore = mock()
         api = mock()
+
         viewModel = UsuarioViewModel(repo, dataStore)
+
+        // Cambiar la API interna del ViewModel mediante reflexión
         val apiField = UsuarioViewModel::class.java.getDeclaredField("api")
         apiField.isAccessible = true
         apiField.set(viewModel, api)
@@ -45,28 +49,81 @@ class UsuarioViewModelTest {
         Dispatchers.resetMain()
     }
 
+    
+
     @Test
-    fun validarFormularioConCamposVaciosDebeFallar() {
-        val valido = viewModel.validarFormulario()
-        assertFalse(valido)
+    fun onNombreChange_actualizaEstado() {
+        viewModel.onNombreChange("Mati")
+        assertEquals("Mati", viewModel.estado.value.nombre)
     }
 
     @Test
-    fun onNombreChangeActualizaEstado() {
-        viewModel.onNombreChange("Marta")
-        assertEquals("Marta", viewModel.estado.value.nombre)
+    fun onApellidoChange_actualizaEstado() {
+        viewModel.onApellidoChange("Ugarte")
+        assertEquals("Ugarte", viewModel.estado.value.apellido)
     }
 
     @Test
-    fun onCorreoChangeLimpiaError() {
-        viewModel.onCorreoChange("correo_invalido")
-        viewModel.validarFormulario()
+    fun onUsernameChange_actualizaEstado() {
+        viewModel.onUsernameChange("mati123")
+        assertEquals("mati123", viewModel.estado.value.username)
+    }
+
+    @Test
+    fun onCorreoChange_actualizaEstado() {
         viewModel.onCorreoChange("valid@mail.com")
         assertEquals("valid@mail.com", viewModel.estado.value.correo)
     }
 
     @Test
-    fun guardarUsuarioCorrectamente() = runTest {
+    fun onDireccionChange_actualizaEstado() {
+        viewModel.onDireccionChange("Calle Falsa 123")
+        assertEquals("Calle Falsa 123", viewModel.estado.value.direccion)
+    }
+
+    @Test
+    fun onClaveChange_actualizaEstado() {
+        viewModel.onClaveChange("12345678")
+        assertEquals("12345678", viewModel.estado.value.clave)
+    }
+
+    @Test
+    fun onRepClaveChange_actualizaEstado() {
+        viewModel.onRepClaveChange("12345678")
+        assertEquals("12345678", viewModel.estado.value.repClave)
+    }
+
+    @Test
+    fun onAceptarTerminosChange_actualizaEstado() {
+        viewModel.onAceptarTerminosChange(true)
+        assertTrue(viewModel.estado.value.aceptaTerminos)
+    }
+
+
+
+    @Test
+    fun validarFormulario_conCamposVacios_falla() {
+        val valido = viewModel.validarFormulario()
+        assertFalse(valido)
+    }
+
+    @Test
+    fun validarFormulario_correcto_debeSerTrue() {
+        viewModel.onNombreChange("Mati")
+        viewModel.onApellidoChange("Ugarte")
+        viewModel.onUsernameChange("mati")
+        viewModel.onCorreoChange("test@mail.com")
+        viewModel.onDireccionChange("Casa")
+        viewModel.onClaveChange("12345678")
+        viewModel.onRepClaveChange("12345678")
+
+        assertTrue(viewModel.validarFormulario())
+    }
+
+
+
+    @Test
+    fun guardarUsuario_correctamente() = runTest {
         viewModel.onNombreChange("Marta")
         viewModel.onApellidoChange("Ugarte")
         viewModel.onUsernameChange("marta")
@@ -77,7 +134,7 @@ class UsuarioViewModelTest {
         viewModel.onAceptarTerminosChange(true)
 
         val backendReturn = Userbackend2(
-            id = null ,
+            id = null,
             nombre = "Marta",
             apellido = "Ugarte",
             username = "marta",
@@ -97,10 +154,11 @@ class UsuarioViewModelTest {
         verify(dataStore).guardarSesionActiva(true)
     }
 
+
     @Test
-    fun iniciarSesionExitoso() = runTest {
+    fun iniciarSesion_exitoso() = runTest {
         val backendReturn = Userbackend2(
-            id  = null,
+            id = null,
             nombre = "Marta",
             apellido = "Ugarte",
             username = "marta",
@@ -126,7 +184,7 @@ class UsuarioViewModelTest {
     }
 
     @Test
-    fun iniciarSesionFallido() = runTest {
+    fun iniciarSesion_fallido() = runTest {
         whenever(api.login(any())).thenThrow(RuntimeException("Error login"))
 
         var resultado = true
@@ -138,5 +196,26 @@ class UsuarioViewModelTest {
         advanceUntilIdle()
 
         assertFalse(resultado)
+    }
+
+
+
+    @Test
+    fun cerrarSesion_limpiaTodo() = runTest {
+        viewModel.cerrarSesion()
+        advanceUntilIdle()
+
+        verify(repo).clear()
+        verify(dataStore).guardarSesionActiva(false)
+        assertEquals("", viewModel.estado.value.nombre)
+    }
+
+
+    @Test
+    fun estaLogueado_devuelveValorDeDataStore() = runTest {
+        whenever(dataStore.sesionIniciada).thenReturn(flowOf(true))
+
+        val result = viewModel.estaLogueado()
+        assertTrue(result)
     }
 }
