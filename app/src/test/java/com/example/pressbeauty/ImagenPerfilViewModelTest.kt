@@ -16,10 +16,13 @@ import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.*
+import org.robolectric.RobolectricTestRunner
 import java.io.ByteArrayInputStream
 import java.io.File
 
+@RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class ImagenPerfilViewModelTest {
 
@@ -31,22 +34,27 @@ class ImagenPerfilViewModelTest {
     private val mockContext = mock<Context>()
     private val mockDataStore = mock<ImagenPerfilDataStore>()
     private val mockResolver = mock<ContentResolver>()
-
     private val fakeFlow = MutableStateFlow<String?>(null)
+
+    private val MOCKED_URI_STRING_FILE = "file:///perfil.jpg"
+    private val MOCKED_URI_STRING_TEST = "file:///test.jpg"
+    private val MOCKED_URI_STRING_ORIGINAL = "content://media/external/images/media/1"
+
 
     @Before
     fun setup() = runTest {
-        // NECESARIO PARA CORRER VIEWMODELS EN TESTS
         Dispatchers.setMain(testDispatcher)
 
-        whenever(mockDataStore.obtenerImagen()).thenReturn(fakeFlow)
+        whenever(mockApp.applicationContext).thenReturn(mockContext)
         whenever(mockContext.contentResolver).thenReturn(mockResolver)
+        whenever(mockContext.filesDir).thenReturn(File("./"))
+
+        whenever(mockDataStore.obtenerImagen()).thenReturn(fakeFlow)
 
         viewModel = object : ImagenPerfilViewModel(mockApp) {
             override val dataStore = mockDataStore
         }
 
-        // Ejecuta coroutines pendientes del init {}
         testDispatcher.scheduler.advanceUntilIdle()
     }
 
@@ -62,22 +70,23 @@ class ImagenPerfilViewModelTest {
 
     @Test
     fun `init carga imagen desde DataStore si existe`() = runTest {
-        fakeFlow.value = "file://perfil.jpg"
+        fakeFlow.value = MOCKED_URI_STRING_FILE
 
         val vm = object : ImagenPerfilViewModel(mockApp) {
             override val dataStore = mockDataStore
         }
 
         testDispatcher.scheduler.advanceUntilIdle()
-
-        assertEquals(Uri.parse("file://perfil.jpg"), vm.imageUri.value)
+        assertEquals(Uri.parse(MOCKED_URI_STRING_FILE), vm.imageUri.value)
     }
 
     @Test
     fun `setImage actualiza el StateFlow y guarda en DataStore`() = runTest {
-        val uri = Uri.parse("file://test.jpg")
+        val uri = Uri.parse(MOCKED_URI_STRING_TEST)
 
         viewModel.setImage(uri)
+
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(uri, viewModel.imageUri.value)
         verify(mockDataStore).guardarImagen(uri.toString())
@@ -87,20 +96,20 @@ class ImagenPerfilViewModelTest {
     fun `setImage con null limpia imagen`() = runTest {
         viewModel.setImage(null)
 
+        testDispatcher.scheduler.advanceUntilIdle()
+
         assertNull(viewModel.imageUri.value)
         verify(mockDataStore).limpiarImagen()
     }
 
     @Test
     fun `guardarImagenPermanente copia archivo y actualiza imagen`() = runTest {
-        val uri = Uri.parse("file://foto_original.jpg")
+        val originalUri = Uri.parse(MOCKED_URI_STRING_ORIGINAL)
 
         val fakeInput = ByteArrayInputStream("datos_falsos".toByteArray())
-        whenever(mockResolver.openInputStream(uri)).thenReturn(fakeInput)
+        whenever(mockResolver.openInputStream(originalUri)).thenReturn(fakeInput)
 
-        whenever(mockContext.filesDir).thenReturn(File("./"))
-
-        viewModel.guardarImagenPermanente(mockContext, uri)
+        viewModel.guardarImagenPermanente(mockContext, originalUri)
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -108,6 +117,7 @@ class ImagenPerfilViewModelTest {
 
         assertNotNull(viewModel.imageUri.value)
         assertTrue(viewModel.imageUri.value.toString().contains("perfil.jpg"))
+        verify(mockResolver).openInputStream(originalUri)
     }
 
 }
